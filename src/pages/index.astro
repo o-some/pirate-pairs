@@ -40,6 +40,7 @@ const bossConfig = {
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <title>Pirate Pairs · Tula’s Island</title>
   <link rel="stylesheet" href={styleAsset} />
+  <link rel="stylesheet" href={`${base}pirate-pairs-polish-v2.css`} />
 </head>
 <body>
   <div class="app" id="app">
@@ -115,5 +116,6 @@ const bossConfig = {
   <script id="game-data" type="application/json" set:html={JSON.stringify(gameConfig)}></script>
   <script id="boss-data" type="application/json" set:html={JSON.stringify(bossConfig)}></script>
   <script src={scriptAsset} defer></script>
+  <script src={`${base}pirate-pairs-fx-v2.js`} defer></script>
 </body>
 </html>
