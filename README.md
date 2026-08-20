@@ -29,6 +29,10 @@ npm run build
 npm run preview
 ```
 
+## Deployment
+
+Pull Requests validieren den Astro-Build über GitHub Actions. Änderungen auf `main` werden anschließend automatisch als statische GitHub-Pages-Version veröffentlicht.
+
 ## Live-Version
 
 https://o-some.github.io/pirate-pairs/
