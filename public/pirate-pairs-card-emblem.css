@@ -1,0 +1,28 @@
+/* Pirate Pairs — stable cross-platform card emblem
+   Replaces the platform-rendered Unicode glyph with a local SVG asset.
+   The underlying text glyph is deliberately made non-rendering so iOS cannot
+   substitute a colored emoji. TULA'S / ISLAND pseudo labels remain visible. */
+
+.pirate-pairs-v4 .crest{
+  color:transparent!important;
+  text-shadow:none!important;
+  font-size:0!important;
+  background:
+    url('./assets/card-emblem.svg') center/58% 58% no-repeat,
+    radial-gradient(circle at 42% 31%,#255d68 0 15%,#123d50 43%,#071e30 72%)!important;
+}
+
+/* Keep the existing ring labels readable even though the parent glyph is zero-sized. */
+.pirate-pairs-v4 .crest::before{
+  font-size:clamp(4px,1.15vw,7px)!important;
+}
+
+.pirate-pairs-v4 .crest::after{
+  font-size:clamp(4px,1.15vw,7px)!important;
+}
+
+@media (max-width:719px){
+  .pirate-pairs-v4 .crest{
+    background-size:56% 56%,auto!important;
+  }
+}
