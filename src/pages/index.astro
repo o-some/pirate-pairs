@@ -1,9 +1,23 @@
 ---
 const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
-const tulaAsset = `${base}assets/tula.svg`;
-const kaiAsset = `${base}assets/kai.svg`;
 const styleAsset = `${base}pirate-pairs.css`;
 const scriptAsset = `${base}pirate-pairs.js`;
+
+// Dropbox is the master/source of truth. Runtime mirrors are pinned to immutable
+// GitHub commits so this standalone game cannot drift when sibling repos change.
+const tulaSourceCommit = 'cf2fb9b3e2dc1eb885d50e88593124def1cbbdc0';
+const tulaRoot = `https://raw.githubusercontent.com/o-some/tulasisland/${tulaSourceCommit}/assets/creative`;
+const tulaNeutral = `${tulaRoot}/tula_neutral_front.webp`;
+const tulaHappy = `${tulaRoot}/tula_happy.webp`;
+const tulaSurprised = `${tulaRoot}/tula_surprised.webp`;
+const tulaCelebrating = `${tulaRoot}/tula_celebrating.webp`;
+const harborAsset = `${tulaRoot}/world_harbor.webp`;
+
+const bossSourceCommit = '927afa882df75ab0c74c426d822af89767b5ec38';
+const kaiAsset = `https://raw.githubusercontent.com/o-some/word-guardians/${bossSourceCommit}/assets/bosses/boss-01-pirat-kai.png`;
+
+const tulaFallback = `${base}assets/tula.svg`;
+const kaiFallback = `${base}assets/kai.svg`;
 
 const gameConfig = {
   sourceLanguage: 'de',
@@ -36,13 +50,17 @@ const bossConfig = {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
-  <meta name="theme-color" content="#062a48" />
+  <meta name="theme-color" content="#041c2e" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <title>Pirate Pairs · Tula’s Island</title>
+  <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin="anonymous" />
+  <link rel="preload" as="image" href={tulaNeutral} crossorigin="anonymous" />
+  <link rel="preload" as="image" href={kaiAsset} crossorigin="anonymous" />
+  <link rel="preload" as="image" href={harborAsset} crossorigin="anonymous" />
   <link rel="stylesheet" href={styleAsset} />
   <link rel="stylesheet" href={`${base}pirate-pairs-polish-v2.css`} />
 </head>
-<body>
+<body style={`--pp-harbor:url("${harborAsset}")`}>
   <div class="app" id="app">
     <header class="topbar">
       <button class="round" id="helpBtn" aria-label="Spielregeln">?</button>
@@ -52,13 +70,17 @@ const bossConfig = {
 
     <section class="duel" aria-label="Duellstand">
       <div class="fighter">
-        <div class="portrait"><img src={tulaAsset} alt="Tula" /></div>
+        <div class="portrait tula-portrait">
+          <img id="tulaDuelSprite" class="character-sprite tula-sprite" src={tulaNeutral} alt="Tula"
+            data-neutral={tulaNeutral} data-happy={tulaHappy} data-surprised={tulaSurprised}
+            data-celebrating={tulaCelebrating} data-fallback={tulaFallback} decoding="async" />
+        </div>
         <div class="fighter-copy"><small>DU</small><b>TULA</b><div class="score"><strong id="playerScore">0</strong><span>/ 8 PAARE</span></div></div>
       </div>
       <div class="turn"><small>AM ZUG</small><b id="turnPill">DU BIST DRAN</b></div>
       <div class="fighter enemy">
         <div class="fighter-copy"><small>GEGNER</small><b>PIRAT KAI</b><div class="score"><strong id="aiScore">0</strong><span>/ 8 PAARE</span></div></div>
-        <div class="portrait"><img src={kaiAsset} alt="Pirat Kai" /></div>
+        <div class="portrait kai-portrait"><img class="character-sprite kai-sprite" src={kaiAsset} data-fallback={kaiFallback} alt="Pirat Kai" decoding="async" /></div>
       </div>
     </section>
 
@@ -80,26 +102,36 @@ const bossConfig = {
   <section class="overlay" id="intro">
     <div class="modal">
       <div class="mini-logo">PIRATE PAIRS<small>TULA’S ISLAND</small></div>
-      <div class="versus"><img src={tulaAsset} alt="Tula" /><span class="vs">VS</span><img class="kai" src={kaiAsset} alt="Pirat Kai" /></div>
+      <div class="versus">
+        <img class="tula intro-tula" src={tulaNeutral} data-fallback={tulaFallback} alt="Tula" />
+        <span class="vs">VS</span>
+        <img class="kai" src={kaiAsset} data-fallback={kaiFallback} alt="Pirat Kai" />
+      </div>
       <span class="boss-tag">☠ LEVEL 1 · PIRAT KAI</span>
       <h1>Er klaut deine Wörter.</h1>
       <p>Finde die passenden <b>Deutsch ↔ Englisch</b>-Paare, bevor Kai sie sich schnappt. Wer ein Paar findet, darf direkt noch einmal.</p>
       <div class="rules"><div class="rule"><b>1. MERKEN</b>Karten aufdecken</div><div class="rule"><b>2. LERNEN</b>Übersetzung finden</div><div class="rule"><b>3. DUELLIEREN</b>Mehr Paare sammeln</div></div>
       <button class="cta" id="startBtn">⚔ MEMORY-DUELL STARTEN</button>
-      <span class="modal-note">PROTOTYP · DE → EN · 8 LERNPAARE</span>
+      <span class="modal-note">DE → EN · 8 LERNPAARE · BOSS 1</span>
     </div>
   </section>
 
   <section class="overlay hidden" id="result">
     <div class="modal">
       <div class="mini-logo">PIRATE PAIRS<small>DUELL BEENDET</small></div>
-      <div class="versus"><img src={tulaAsset} alt="Tula" /><span class="vs">VS</span><img class="kai" src={kaiAsset} alt="Pirat Kai" /></div>
+      <div class="versus">
+        <img id="resultTulaSprite" class="tula result-tula" src={tulaNeutral} alt="Tula"
+          data-neutral={tulaNeutral} data-happy={tulaHappy} data-surprised={tulaSurprised}
+          data-celebrating={tulaCelebrating} data-fallback={tulaFallback} />
+        <span class="vs">VS</span>
+        <img class="kai" src={kaiAsset} data-fallback={kaiFallback} alt="Pirat Kai" />
+      </div>
       <span class="boss-tag" id="resultTag">LEVEL 1</span>
       <h2 id="resultTitle">Du hast gewonnen!</h2>
       <p id="resultCopy">Pirat Kai muss die Wörterbucht räumen.</p>
       <div class="result-stats"><div class="result-stat"><b id="resultPlayer">0</b><small>DEINE PAARE</small></div><div class="result-stat"><b id="resultShells">+0</b><small>MUSCHELN</small></div><div class="result-stat"><b id="resultXp">+0</b><small>XP</small></div></div>
       <button class="cta" id="againBtn">↻ NOCH EIN DUELL</button>
-      <span class="modal-note">NÄCHSTE VERSION: BOSSE · KATEGORIEN · SCHWIERIGKEIT</span>
+      <span class="modal-note">NÄCHSTE ETAPPE: KAPITÄN BRAX</span>
     </div>
   </section>
 
