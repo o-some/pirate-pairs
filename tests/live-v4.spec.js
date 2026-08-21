@@ -21,8 +21,6 @@ test('live Pirate Pairs V4 premium cards and sprites', async ({ page }) => {
 
   const liveUrl = 'https://o-some.github.io/pirate-pairs/';
 
-  // Pages can still be propagating immediately after the merge. Retry until the
-  // actual published V4 marker is present instead of accidentally testing V3.
   let v4Ready = false;
   for (let attempt = 0; attempt < 18; attempt++) {
     await page.goto(liveUrl, { waitUntil: 'networkidle' });
@@ -35,7 +33,6 @@ test('live Pirate Pairs V4 premium cards and sprites', async ({ page }) => {
   await expect(page).toHaveTitle(/Pirate Pairs/);
   await expect(page.locator('#grid .card')).toHaveCount(16);
 
-  // Real Tula's Island runtime assets must be active, not the old local SVGs.
   const tula = page.locator('#tulaDuelSprite');
   const kai = page.locator('.kai-portrait img');
   await expect(tula).toHaveAttribute('src', /tula_neutral_front\.webp/);
@@ -50,7 +47,6 @@ test('live Pirate Pairs V4 premium cards and sprites', async ({ page }) => {
   );
   expect(backgroundHasHarbor).toBeTruthy();
 
-  // Card surfaces should have material depth rather than flat blocks.
   const cardMaterial = await page.locator('#grid .card').first().evaluate(card => {
     const back = card.querySelector('.back');
     const front = card.querySelector('.front');
@@ -80,7 +76,6 @@ test('live Pirate Pairs V4 premium cards and sprites', async ({ page }) => {
   await page.locator('#startBtn').tap();
   await expect(page.locator('#intro')).toHaveClass(/hidden/);
 
-  // Find one deterministic translation pair from data-id, independent of shuffle.
   const cardIds = await page.locator('#grid .card').evaluateAll(nodes => nodes.map(node => node.dataset.id));
   const groups = new Map();
   cardIds.forEach((id, index) => {
@@ -106,10 +101,9 @@ test('live Pirate Pairs V4 premium cards and sprites', async ({ page }) => {
   expect(settledTransform).not.toBe('none');
 
   await second.tap();
-  await expect.poll(() => Number(page.locator('#playerScore').textContent()), { timeout: 2500 }).toBe(1);
-  await expect.poll(() => tula.getAttribute('src'), { timeout: 1400 }).toContain('tula_happy.webp');
+  await expect.poll(async () => Number(await page.locator('#playerScore').textContent()), { timeout: 2500 }).toBe(1);
+  await expect.poll(async () => await tula.getAttribute('src'), { timeout: 1400 }).toContain('tula_happy.webp');
 
-  // Restart, then verify the one-shot ability still works with the V4 visuals.
   await page.locator('#restartBtn').tap();
   await expect(page.locator('#grid .card')).toHaveCount(16);
   await page.locator('#peekBtn').tap();
