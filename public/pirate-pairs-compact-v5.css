@@ -1,0 +1,301 @@
+/* Pirate Pairs — Compact Premium V5
+   Visual-only override layer. No gameplay or AI logic changes.
+   Goals: ~20% less vertical footprint, richer card fronts, pirate turn badge,
+   and unmistakable unavailable/matched-card states. */
+
+:root{
+  --pp5-brass:#c8953d;
+  --pp5-brass-hi:#f3d88d;
+  --pp5-brass-deep:#5f3d16;
+  --pp5-ink:#21180d;
+  --pp5-ivory:#fff5d7;
+  --pp5-paper:#ecd9a8;
+  --pp5-sea:#0b4658;
+  --pp5-sea-dark:#031e2e;
+}
+
+/* ---------- Global vertical rhythm: compact, not squashed ---------- */
+.pirate-pairs-v4 .app{
+  max-width:920px;
+  padding-top:max(3px,env(safe-area-inset-top));
+  padding-inline:10px;
+  padding-bottom:calc(8px + env(safe-area-inset-bottom));
+}
+.pirate-pairs-v4 .topbar{
+  grid-template-columns:40px 1fr 40px;
+  gap:8px;
+  padding:5px 0 4px;
+}
+.pirate-pairs-v4 .round{width:38px;height:38px;font-size:19px}
+.pirate-pairs-v4 .logo{padding:5px 16px 6px;border-radius:15px}
+.pirate-pairs-v4 .logo b{font-size:clamp(20px,4.8vw,30px)}
+.pirate-pairs-v4 .logo small{margin-top:4px;font-size:7.5px;letter-spacing:.20em}
+
+.pirate-pairs-v4 .duel{
+  gap:7px;
+  margin:2px 0 6px;
+  padding:6px 8px;
+  border-radius:20px;
+}
+.pirate-pairs-v4 .fighter{padding:3px 5px;border-radius:15px}
+.pirate-pairs-v4 .portrait{width:56px;height:62px;border-radius:15px}
+.pirate-pairs-v4 .fighter-copy small{font-size:8px}
+.pirate-pairs-v4 .fighter-copy b{font-size:clamp(12px,3.3vw,15px)}
+.pirate-pairs-v4 .score{margin-top:0}
+.pirate-pairs-v4 .score strong{font-size:20px}
+.pirate-pairs-v4 .score span{font-size:9px}
+
+.pirate-pairs-v4 .arena{
+  padding:8px 9px;
+  border-radius:22px;
+}
+.pirate-pairs-v4 .arena::after{inset:7px;border-radius:15px}
+.pirate-pairs-v4 .arena-head{margin:0 1px 6px}
+.pirate-pairs-v4 .level-tag{padding:3px 7px 3px 4px;font-size:9px}
+.pirate-pairs-v4 .level-tag span{width:20px;height:20px}
+.pirate-pairs-v4 .progress{padding:3px 6px;font-size:8.5px}
+.pirate-pairs-v4 .grid{gap:6px}
+.pirate-pairs-v4 .card{aspect-ratio:.90}
+
+.pirate-pairs-v4 .skillbar{margin-top:6px;gap:7px}
+.pirate-pairs-v4 .skill-copy{padding:6px 8px;border-radius:13px}
+.pirate-pairs-v4 .skill-copy small{font-size:7px}
+.pirate-pairs-v4 .skill-copy b{font-size:11px}
+.pirate-pairs-v4 .skill-copy span{font-size:8px}
+.pirate-pairs-v4 .skill{min-width:100px;padding:0 10px;border-radius:13px;font-size:9px}
+
+/* ---------- Turn badge: pirate command plaque ---------- */
+.pirate-pairs-v4 .turn b{
+  position:relative;
+  min-height:30px;
+  padding:0 13px 0 30px;
+  border:1px solid #e5c374;
+  border-radius:7px;
+  color:#fff3c8;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.08),transparent 45%),
+    linear-gradient(180deg,#176274 0%,#0b4153 48%,#062b3b 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,245,205,.08),
+    inset 0 -2px 0 rgba(51,30,12,.32),
+    0 3px 0 #523516,
+    0 7px 14px rgba(0,0,0,.28);
+  text-shadow:0 1px 2px rgba(0,0,0,.58);
+  letter-spacing:.065em;
+}
+.pirate-pairs-v4 .turn b::before{
+  content:"☠";
+  position:absolute;
+  left:8px;
+  top:50%;
+  translate:0 -50%;
+  width:17px;
+  height:17px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(246,216,143,.55);
+  border-radius:50%;
+  color:#f4d98f;
+  background:radial-gradient(circle,#173c45,#071f2c 72%);
+  font-size:9px;
+  box-shadow:inset 0 0 0 2px rgba(0,0,0,.20);
+}
+.pirate-pairs-v4 .turn b::after{
+  content:"";
+  position:absolute;
+  left:31px;right:9px;bottom:4px;height:1px;
+  background:linear-gradient(90deg,rgba(239,205,126,.15),rgba(239,205,126,.58),rgba(239,205,126,.15));
+}
+.pirate-pairs-v4 .turn b.ai{
+  color:#fff0e8;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.07),transparent 44%),
+    linear-gradient(180deg,#9f5749 0%,#743a35 52%,#4f2928 100%);
+  border-color:#e0a47f;
+  box-shadow:inset 0 0 0 1px rgba(255,235,223,.07),inset 0 -2px rgba(63,23,20,.30),0 3px 0 #4a241f,0 7px 14px rgba(0,0,0,.28);
+}
+.pirate-pairs-v4 .turn b.ai::before{background:radial-gradient(circle,#733c36,#351d20 72%);border-color:rgba(242,164,136,.62);color:#ffd8c8}
+
+/* ---------- Card front: luxury ivory + brass, text remains dominant ---------- */
+.pirate-pairs-v4 .front{
+  border-color:#c79a43;
+  color:var(--pp5-ink);
+  background:
+    radial-gradient(circle at 14% 12%,rgba(126,78,24,.12) 0 2px,transparent 3px),
+    radial-gradient(circle at 86% 12%,rgba(126,78,24,.12) 0 2px,transparent 3px),
+    radial-gradient(circle at 14% 88%,rgba(126,78,24,.11) 0 2px,transparent 3px),
+    radial-gradient(circle at 86% 88%,rgba(126,78,24,.11) 0 2px,transparent 3px),
+    radial-gradient(ellipse at 50% 8%,rgba(255,255,255,.88),transparent 28%),
+    repeating-linear-gradient(0deg,rgba(98,63,24,.018) 0 1px,transparent 1px 4px),
+    linear-gradient(180deg,#fff8df 0%,#f5e8c4 48%,#e7cf94 100%);
+  box-shadow:
+    inset 0 0 0 1px #5f3d17,
+    inset 0 0 0 3px #d9b365,
+    inset 0 0 0 5px rgba(255,249,224,.82),
+    inset 0 1px rgba(255,255,255,.78),
+    0 5px 0 rgba(77,49,20,.38),
+    0 8px 13px rgba(0,0,0,.26);
+}
+.pirate-pairs-v4 .front::before{
+  inset:7px;
+  border:1px solid rgba(111,71,26,.34);
+  border-radius:8px;
+  background:
+    linear-gradient(90deg,transparent 0 10%,rgba(132,85,30,.08) 10.5% 11%,transparent 11.5% 88.5%,rgba(132,85,30,.08) 89% 89.5%,transparent 90%),
+    linear-gradient(0deg,transparent 0 11%,rgba(132,85,30,.07) 11.5% 12%,transparent 12.5% 87.5%,rgba(132,85,30,.07) 88% 88.5%,transparent 89%);
+}
+.pirate-pairs-v4 .front::after{
+  content:"✦";
+  position:absolute;
+  left:50%;top:50%;
+  translate:-50% -50%;
+  width:58%;aspect-ratio:1;
+  display:grid;place-items:center;
+  border:1px solid rgba(122,78,29,.08);
+  border-radius:50%;
+  color:rgba(112,70,25,.07);
+  background:
+    radial-gradient(circle,transparent 0 39%,rgba(120,76,28,.06) 40% 41%,transparent 42%),
+    linear-gradient(45deg,transparent 49.5%,rgba(120,76,28,.05) 50%,transparent 50.5%),
+    linear-gradient(-45deg,transparent 49.5%,rgba(120,76,28,.05) 50%,transparent 50.5%);
+  font-size:20px;
+  pointer-events:none;
+}
+.pirate-pairs-v4 .word{
+  z-index:2;
+  max-width:calc(100% - 16px);
+  padding:5px 7px 6px;
+  border:1px solid rgba(126,82,31,.20);
+  border-radius:9px;
+  color:#241b10;
+  background:linear-gradient(180deg,rgba(255,253,241,.88),rgba(248,235,202,.82));
+  box-shadow:inset 0 1px rgba(255,255,255,.85),0 3px 8px rgba(94,57,20,.10);
+  font-size:clamp(13px,4vw,22px);
+  line-height:1.02;
+  text-shadow:0 1px rgba(255,255,255,.90);
+}
+.pirate-pairs-v4 .lang{
+  top:7px;left:7px;
+  min-width:25px;height:18px;
+  border:1px solid rgba(239,210,139,.68);
+  border-radius:5px;
+  background:linear-gradient(180deg,#17617a,#0a3d56);
+  color:#fff8e7;
+  box-shadow:inset 0 1px rgba(255,255,255,.14),0 2px 5px rgba(0,0,0,.22);
+}
+.pirate-pairs-v4 .lang.en{background:linear-gradient(180deg,#9b5548,#6d342f)}
+
+/* ---------- Card back: heavier physical-card feel ---------- */
+.pirate-pairs-v4 .back{
+  border-color:#bf8e38;
+  background:
+    radial-gradient(circle at 12% 12%,rgba(236,204,128,.11) 0 2px,transparent 3px),
+    radial-gradient(circle at 88% 12%,rgba(236,204,128,.11) 0 2px,transparent 3px),
+    radial-gradient(circle at 12% 88%,rgba(236,204,128,.10) 0 2px,transparent 3px),
+    radial-gradient(circle at 88% 88%,rgba(236,204,128,.10) 0 2px,transparent 3px),
+    radial-gradient(circle at 50% 42%,rgba(83,197,190,.12),transparent 35%),
+    repeating-linear-gradient(135deg,rgba(255,255,255,.014) 0 1px,transparent 1px 5px),
+    linear-gradient(145deg,#123f54 0%,#082d43 48%,#041a2a 100%);
+  box-shadow:inset 0 0 0 1px #4e3215,inset 0 0 0 3px #c79a43,inset 0 0 0 5px rgba(8,34,47,.94),inset 0 0 0 7px rgba(220,184,95,.18),0 5px 0 rgba(50,31,14,.48),0 9px 14px rgba(0,0,0,.30);
+}
+.pirate-pairs-v4 .crest{width:50%;border-color:#d7b967;background:radial-gradient(circle at 42% 31%,#255d68 0 15%,#123d50 43%,#071e30 72%)}
+
+/* ---------- Unavailable cards: unmistakably out of play ---------- */
+.pirate-pairs-v4 .card.matched{
+  opacity:.48!important;
+  filter:grayscale(.95) saturate(.12) brightness(.68) contrast(.86)!important;
+  cursor:not-allowed!important;
+  pointer-events:none!important;
+}
+.pirate-pairs-v4 .card.matched .front{
+  box-shadow:inset 0 0 0 1px #5c5d5c,inset 0 0 0 3px #8a8b88,inset 0 0 0 5px rgba(238,238,231,.24),0 4px 0 rgba(25,25,25,.28),0 7px 12px rgba(0,0,0,.22)!important;
+}
+.pirate-pairs-v4 .card.matched .word{background:rgba(229,229,221,.72);border-color:rgba(85,85,82,.25);color:#373936}
+.pirate-pairs-v4 .card.matched .matched-by{display:flex!important;background:#5d6361!important;color:#f5f6f2!important;border-color:#858c89!important;letter-spacing:.08em}
+
+/* ---------- Compact overlays too ---------- */
+.pirate-pairs-v4 .modal{padding:14px;border-radius:23px}
+.pirate-pairs-v4 .mini-logo{font-size:26px}
+.pirate-pairs-v4 .versus{height:145px;margin:4px auto 1px}
+.pirate-pairs-v4 .versus img{height:138px}
+.pirate-pairs-v4 .versus .kai{height:145px}
+.pirate-pairs-v4 .modal h1,.pirate-pairs-v4 .modal h2{margin:4px 0 5px;font-size:clamp(22px,6vw,32px)}
+.pirate-pairs-v4 .modal p{margin-bottom:9px;font-size:11px;line-height:1.38}
+.pirate-pairs-v4 .rules{margin:7px auto 9px;gap:5px}
+.pirate-pairs-v4 .rule{padding:6px 4px;font-size:8px}
+.pirate-pairs-v4 .rule b{font-size:9px}
+.pirate-pairs-v4 .cta{padding:10px 15px;font-size:11px}
+.pirate-pairs-v4 .modal-note{margin-top:7px}
+
+@media (max-width:719px){
+  .pirate-pairs-v4 .app{padding-inline:7px;padding-bottom:calc(5px + env(safe-area-inset-bottom))}
+  .pirate-pairs-v4 .topbar{grid-template-columns:36px 1fr 36px;gap:6px;padding:3px 0}
+  .pirate-pairs-v4 .round{width:34px;height:34px;font-size:17px}
+  .pirate-pairs-v4 .logo{padding:4px 12px 5px;border-radius:13px}
+  .pirate-pairs-v4 .logo b{font-size:clamp(18px,5.4vw,24px)}
+  .pirate-pairs-v4 .logo small{font-size:6.5px;margin-top:3px}
+
+  .pirate-pairs-v4 .duel{padding:5px 6px 35px;gap:7px;margin-bottom:5px;border-radius:17px}
+  .pirate-pairs-v4 .fighter{padding:2px 4px;border-radius:13px;gap:5px}
+  .pirate-pairs-v4 .portrait{width:49px;height:54px;border-radius:13px}
+  .pirate-pairs-v4 .fighter-copy b{font-size:12px}
+  .pirate-pairs-v4 .fighter-copy small{font-size:7px}
+  .pirate-pairs-v4 .score strong{font-size:17px}
+  .pirate-pairs-v4 .score span{font-size:7.5px}
+  .pirate-pairs-v4 .turn{bottom:3px;width:142px}
+  .pirate-pairs-v4 .turn b{min-height:27px;padding-left:28px;font-size:9px}
+  .pirate-pairs-v4 .turn b::before{left:7px;width:15px;height:15px;font-size:8px}
+
+  .pirate-pairs-v4 .arena{padding:6px 7px;border-radius:18px}
+  .pirate-pairs-v4 .arena-head{margin-bottom:4px}
+  .pirate-pairs-v4 .level-tag{font-size:8px}
+  .pirate-pairs-v4 .level-tag span{width:18px;height:18px}
+  .pirate-pairs-v4 .progress{font-size:7.5px}
+  .pirate-pairs-v4 .grid{gap:5px}
+  .pirate-pairs-v4 .card{aspect-ratio:.93}
+  .pirate-pairs-v4 .face{border-radius:11px}
+  .pirate-pairs-v4 .back::before{inset:6px}
+  .pirate-pairs-v4 .crest{width:47%}
+  .pirate-pairs-v4 .front::before{inset:6px}
+  .pirate-pairs-v4 .word{max-width:calc(100% - 12px);padding:4px 5px;font-size:clamp(11px,3.7vw,15px);border-radius:7px}
+  .pirate-pairs-v4 .lang{top:5px;left:5px;min-width:22px;height:16px;font-size:6.5px}
+
+  .pirate-pairs-v4 .skillbar{margin-top:4px;gap:5px}
+  .pirate-pairs-v4 .skill-copy{padding:5px 7px;border-radius:11px}
+  .pirate-pairs-v4 .skill-copy small{font-size:6px}
+  .pirate-pairs-v4 .skill-copy b{font-size:9.5px}
+  .pirate-pairs-v4 .skill-copy span{font-size:7px}
+  .pirate-pairs-v4 .skill{min-width:88px;padding-inline:7px;border-radius:11px;font-size:8px}
+
+  .pirate-pairs-v4 .modal{width:min(94vw,470px);padding:11px;max-height:calc(100svh - 12px);overflow:auto}
+  .pirate-pairs-v4 .versus{height:118px}
+  .pirate-pairs-v4 .versus img{height:112px}
+  .pirate-pairs-v4 .versus .kai{height:118px}
+  .pirate-pairs-v4 .mini-logo{font-size:23px}
+  .pirate-pairs-v4 .modal h1,.pirate-pairs-v4 .modal h2{font-size:clamp(20px,6.2vw,27px)}
+}
+
+@media (max-width:370px){
+  .pirate-pairs-v4 .app{padding-inline:5px}
+  .pirate-pairs-v4 .duel{padding-inline:4px;gap:4px}
+  .pirate-pairs-v4 .portrait{width:44px;height:49px}
+  .pirate-pairs-v4 .grid{gap:4px}
+  .pirate-pairs-v4 .card{aspect-ratio:.96}
+  .pirate-pairs-v4 .word{font-size:10.5px}
+  .pirate-pairs-v4 .skillbar{grid-template-columns:1fr 82px}
+  .pirate-pairs-v4 .skill{min-width:0}
+}
+
+@media (min-width:720px){
+  .pirate-pairs-v4 .app{padding-inline:18px;padding-bottom:10px}
+  .pirate-pairs-v4 .duel{padding:7px 12px;margin-bottom:8px}
+  .pirate-pairs-v4 .portrait{width:58px;height:64px}
+  .pirate-pairs-v4 .arena{padding:10px 13px 9px}
+  .pirate-pairs-v4 .grid{max-width:660px;gap:8px}
+  .pirate-pairs-v4 .card{aspect-ratio:.92}
+  .pirate-pairs-v4 .skillbar{max-width:660px;margin-top:8px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .pirate-pairs-v4 .turn b,.pirate-pairs-v4 .front,.pirate-pairs-v4 .back{transition:none!important}
+}
