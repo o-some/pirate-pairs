@@ -1,7 +1,7 @@
 ---
 const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
 const styleAsset = `${base}pirate-pairs.css`;
-const scriptAsset = `${base}pirate-pairs.js`;
+const scriptAsset = `${base}pirate-pairs-b02.js`;
 
 // Dropbox is the master/source of truth. Runtime mirrors are pinned to immutable
 // GitHub commits so this standalone game cannot drift when sibling repos change.
@@ -18,9 +18,13 @@ const bossRoot = `https://raw.githubusercontent.com/o-some/word-guardians/${boss
 const kaiAsset = `${bossRoot}/boss-01-pirat-kai.png`;
 const braxAsset = `${bossRoot}/boss-02-kapitaen-brax.png`;
 const blackfinnAsset = `${bossRoot}/boss-03-blackfinn.png`;
+const roderickAsset = `${bossRoot}/boss-04-alt-kapitaen-roderick.png`;
+const vargasAsset = `${bossRoot}/boss-05-piratenbaron-vargas.png`;
+const ironhookAsset = `${bossRoot}/boss-06-kapitaen-ironhook.png`;
 
 const tulaFallback = `${base}assets/tula.svg`;
 const kaiFallback = `${base}assets/kai.svg`;
+const bossFallback = `${base}assets/boss-fallback.svg`;
 
 const gameConfig = {
   sourceLanguage: 'de',
@@ -47,6 +51,7 @@ const bossConfig = {
       name: 'Pirat Kai',
       shortName: 'KAI',
       image: kaiAsset,
+      fallback: kaiFallback,
       location: 'WÖRTERBUCHT',
       memoryStrength: 0.61,
       forgetChance: 0.12,
@@ -65,6 +70,7 @@ const bossConfig = {
       name: 'Kapitän Brax',
       shortName: 'BRAX',
       image: braxAsset,
+      fallback: bossFallback,
       location: 'PULVERKAI',
       memoryStrength: 0.67,
       forgetChance: 0.10,
@@ -83,6 +89,7 @@ const bossConfig = {
       name: 'Blackfinn',
       shortName: 'BLACKFINN',
       image: blackfinnAsset,
+      fallback: bossFallback,
       location: 'NEBELRIFF',
       memoryStrength: 0.72,
       forgetChance: 0.09,
@@ -94,6 +101,63 @@ const bossConfig = {
         name: 'Nebelwand',
         description: 'Alle zwei deiner Versuche blockiert Blackfinn bis zu drei verdeckte Karten für deinen nächsten Versuch. Er selbst kann sie weiterhin nutzen.',
         everyPlayerAttempts: 2,
+      },
+    },
+    {
+      bossId: 4,
+      name: 'Alt-Kapitän Roderick',
+      shortName: 'RODERICK',
+      image: roderickAsset,
+      fallback: bossFallback,
+      location: 'FLUCHANKER',
+      memoryStrength: 0.76,
+      forgetChance: 0.08,
+      thinkingDelay: 640,
+      introTitle: 'Roderick verflucht deine Erinnerung.',
+      introCopy: 'Roderick markiert eine Karte, die du bereits gesehen hast. Öffnest du sie erneut, verschiebt er sichtbar eine andere bekannte Karte und bringt dein Gedächtnis durcheinander.',
+      ability: {
+        type: 'memory-curse',
+        name: 'Verfluchte Erinnerung',
+        description: 'Alle drei deiner Versuche verflucht Roderick eine bereits bekannte verdeckte Karte. Öffnest du sie erneut, verschiebt er sichtbar eine andere bekannte Karte.',
+        everyPlayerAttempts: 3,
+      },
+    },
+    {
+      bossId: 5,
+      name: 'Piratenbaron Vargas',
+      shortName: 'VARGAS',
+      image: vargasAsset,
+      fallback: bossFallback,
+      location: 'TRIBUT-HAFEN',
+      memoryStrength: 0.80,
+      forgetChance: 0.07,
+      thinkingDelay: 620,
+      introTitle: 'Vargas verlangt seinen Anteil.',
+      introCopy: 'Wenn Vargas Tribut fordert, hast du zwei Versuche für ein Paar. Schaffst du es nicht, bekommt er automatisch einen Bonuspunkt.',
+      ability: {
+        type: 'tribute',
+        name: 'Tribut',
+        description: 'Alle drei deiner Versuche fordert Vargas Tribut: Finde innerhalb der nächsten zwei Versuche ein Paar oder Vargas erhält +1 Punkt.',
+        everyPlayerAttempts: 3,
+      },
+    },
+    {
+      bossId: 6,
+      name: 'Kapitän Ironhook',
+      shortName: 'IRONHOOK',
+      image: ironhookAsset,
+      fallback: bossFallback,
+      location: 'KETTENWERFT',
+      memoryStrength: 0.83,
+      forgetChance: 0.06,
+      thinkingDelay: 600,
+      introTitle: 'Ironhook legt das Deck in Ketten.',
+      introCopy: 'Ironhook fesselt zwei verdeckte Karten. Du kannst sie für zwei Versuche nicht wählen – er selbst kann sie weiterhin erreichen.',
+      ability: {
+        type: 'chains',
+        name: 'Karten fesseln',
+        description: 'Alle drei deiner Versuche fesselt Ironhook zwei verdeckte Karten für deine nächsten zwei Versuche. Die Ketten bleiben klar sichtbar.',
+        everyPlayerAttempts: 3,
       },
     },
   ],
@@ -116,6 +180,7 @@ const bossConfig = {
   <link rel="stylesheet" href={`${base}pirate-pairs-compact-v5.css`} />
   <link rel="stylesheet" href={`${base}pirate-pairs-card-emblem.css`} />
   <link rel="stylesheet" href={`${base}pirate-pairs-bosses.css`} />
+  <link rel="stylesheet" href={`${base}pirate-pairs-bosses-b02.css`} />
 </head>
 <body style={`--pp-harbor:url("${harborAsset}")`}>
   <div class="app" id="app">
@@ -193,7 +258,7 @@ const bossConfig = {
       <p id="resultCopy">Pirat Kai muss die Wörterbucht räumen.</p>
       <div class="result-stats"><div class="result-stat"><b id="resultPlayer">0</b><small>DEINE PUNKTE</small></div><div class="result-stat"><b id="resultShells">+0</b><small>MUSCHELN</small></div><div class="result-stat"><b id="resultXp">+0</b><small>XP</small></div></div>
       <button class="cta" id="againBtn">↻ NOCH EIN DUELL</button>
-      <span class="modal-note" id="resultModalNote">NÄCHSTE ETAPPE: KAPITÄN BRAX</span>
+      <span class="modal-note" id="resultModalNote">NOCH EIN DUELL GEGEN PIRAT KAI</span>
     </div>
   </section>
 
@@ -201,7 +266,7 @@ const bossConfig = {
     <div class="help-card">
       <h3>So funktioniert Pirate Pairs</h3>
       <p>Du deckst zwei Karten auf. Nur eine deutsche Karte und ihre englische Übersetzung bilden ein Paar. Ein gefundenes Paar bringt einen Punkt.</p>
-      <p>Jeder Boss hat einen eigenen Trick. Die Fähigkeit wird sichtbar angekündigt, damit du reagieren und taktisch spielen kannst. Bomben- und spätere Bonusmechaniken können den Punktestand zusätzlich verändern.</p>
+      <p>Jeder Boss hat einen eigenen Trick. Die Fähigkeit wird sichtbar angekündigt, damit du reagieren und taktisch spielen kannst. Bomben-, Tribut- und spätere Bonusmechaniken können den Punktestand zusätzlich verändern.</p>
       <p><b>Muschelblick:</b> Einmal pro Runde darf Tula zwei zufällige verfügbare Karten kurz aufdecken.</p>
       <button id="closeHelp">VERSTANDEN</button>
     </div>
