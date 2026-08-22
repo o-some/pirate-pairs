@@ -14,7 +14,10 @@ const tulaCelebrating = `${tulaRoot}/tula_celebrating.webp`;
 const harborAsset = `${tulaRoot}/world_harbor.webp`;
 
 const bossSourceCommit = '927afa882df75ab0c74c426d822af89767b5ec38';
-const kaiAsset = `https://raw.githubusercontent.com/o-some/word-guardians/${bossSourceCommit}/assets/bosses/boss-01-pirat-kai.png`;
+const bossRoot = `https://raw.githubusercontent.com/o-some/word-guardians/${bossSourceCommit}/assets/bosses`;
+const kaiAsset = `${bossRoot}/boss-01-pirat-kai.png`;
+const braxAsset = `${bossRoot}/boss-02-kapitaen-brax.png`;
+const blackfinnAsset = `${bossRoot}/boss-03-blackfinn.png`;
 
 const tulaFallback = `${base}assets/tula.svg`;
 const kaiFallback = `${base}assets/kai.svg`;
@@ -37,12 +40,63 @@ const gameConfig = {
 };
 
 const bossConfig = {
-  bossId: 1,
-  name: 'Pirat Kai',
-  memoryStrength: 0.61,
-  forgetChance: 0.12,
-  thinkingDelay: 720,
-  specialAbility: null,
+  startBossId: 1,
+  bosses: [
+    {
+      bossId: 1,
+      name: 'Pirat Kai',
+      shortName: 'KAI',
+      image: kaiAsset,
+      location: 'WÖRTERBUCHT',
+      memoryStrength: 0.61,
+      forgetChance: 0.12,
+      thinkingDelay: 720,
+      introTitle: 'Er verschiebt, was du dir merkst.',
+      introCopy: 'Finde die passenden <b>Deutsch ↔ Englisch</b>-Paare. Kai tauscht im Kampf zwei verdeckte Karten sichtbar miteinander – ohne sie aufzudecken.',
+      ability: {
+        type: 'swap',
+        name: 'Decktausch',
+        description: 'Alle drei deiner Versuche tauscht Kai zwei verdeckte Karten sichtbar miteinander. Folge der Bewegung genau.',
+        everyPlayerAttempts: 3,
+      },
+    },
+    {
+      bossId: 2,
+      name: 'Kapitän Brax',
+      shortName: 'BRAX',
+      image: braxAsset,
+      location: 'PULVERKAI',
+      memoryStrength: 0.67,
+      forgetChance: 0.10,
+      thinkingDelay: 690,
+      introTitle: 'Brax spielt mit Feuer.',
+      introCopy: 'Brax legt Bomben unter verdeckte Karten. Du siehst, welche Karte vermint wird. Öffnest du sie trotzdem, verlierst du einen Punkt und Brax bekommt einen.',
+      ability: {
+        type: 'bomb',
+        name: 'Pulverfalle',
+        description: 'Alle drei deiner Versuche vermint Brax eine sichtbare Kartenposition für zwei Versuche: Treffer = −1 Punkt für dich, +1 für Brax.',
+        everyPlayerAttempts: 3,
+      },
+    },
+    {
+      bossId: 3,
+      name: 'Blackfinn',
+      shortName: 'BLACKFINN',
+      image: blackfinnAsset,
+      location: 'NEBELRIFF',
+      memoryStrength: 0.72,
+      forgetChance: 0.09,
+      thinkingDelay: 660,
+      introTitle: 'Blackfinn nimmt dir die Sicht.',
+      introCopy: 'Blackfinn ruft dichten Nebel über Teile des Decks. Die betroffenen Karten bleiben sichtbar an ihrem Platz, sind für deinen nächsten Versuch aber gesperrt.',
+      ability: {
+        type: 'fog',
+        name: 'Nebelwand',
+        description: 'Alle zwei deiner Versuche blockiert Blackfinn bis zu drei verdeckte Karten für deinen nächsten Versuch. Er selbst kann sie weiterhin nutzen.',
+        everyPlayerAttempts: 2,
+      },
+    },
+  ],
 };
 ---
 <!doctype html>
@@ -61,6 +115,7 @@ const bossConfig = {
   <link rel="stylesheet" href={`${base}pirate-pairs-polish-v2.css`} />
   <link rel="stylesheet" href={`${base}pirate-pairs-compact-v5.css`} />
   <link rel="stylesheet" href={`${base}pirate-pairs-card-emblem.css`} />
+  <link rel="stylesheet" href={`${base}pirate-pairs-bosses.css`} />
 </head>
 <body style={`--pp-harbor:url("${harborAsset}")`}>
   <div class="app" id="app">
@@ -77,19 +132,23 @@ const bossConfig = {
             data-neutral={tulaNeutral} data-happy={tulaHappy} data-surprised={tulaSurprised}
             data-celebrating={tulaCelebrating} data-fallback={tulaFallback} decoding="async" />
         </div>
-        <div class="fighter-copy"><small>DU</small><b>TULA</b><div class="score"><strong id="playerScore">0</strong><span>/ 8 PAARE</span></div></div>
+        <div class="fighter-copy"><small>DU</small><b>TULA</b><div class="score"><strong id="playerScore">0</strong><span>PUNKTE</span></div></div>
       </div>
       <div class="turn"><small>AM ZUG</small><b id="turnPill">DU BIST DRAN</b></div>
       <div class="fighter enemy">
-        <div class="fighter-copy"><small>GEGNER</small><b>PIRAT KAI</b><div class="score"><strong id="aiScore">0</strong><span>/ 8 PAARE</span></div></div>
-        <div class="portrait kai-portrait"><img class="character-sprite kai-sprite" src={kaiAsset} data-fallback={kaiFallback} alt="Pirat Kai" decoding="async" /></div>
+        <div class="fighter-copy"><small>GEGNER</small><b id="bossName">PIRAT KAI</b><div class="score"><strong id="aiScore">0</strong><span>PUNKTE</span></div></div>
+        <div class="portrait kai-portrait"><img id="bossDuelSprite" class="character-sprite kai-sprite" src={kaiAsset} data-fallback={kaiFallback} alt="Pirat Kai" decoding="async" /></div>
       </div>
     </section>
 
     <main class="arena">
       <div class="arena-head">
-        <div class="level-tag"><span>☠</span> LEVEL 1 · WÖRTERBUCHT</div>
+        <div class="level-tag" id="levelTag"><span>☠</span> LEVEL 1 · WÖRTERBUCHT</div>
         <div class="progress">PAARE GEFUNDEN <b id="progress">0 / 8</b></div>
+      </div>
+      <div class="boss-ability-banner" id="bossAbilityBanner" aria-live="assertive" aria-atomic="true">
+        <b id="bossAbilityTitle">BOSS-TRICK</b>
+        <span id="bossAbilityCopy"></span>
       </div>
       <div class="grid" id="grid" aria-label="Memory Spielfeld"></div>
       <section class="skillbar">
@@ -107,14 +166,15 @@ const bossConfig = {
       <div class="versus">
         <img class="tula intro-tula" src={tulaNeutral} data-fallback={tulaFallback} alt="Tula" />
         <span class="vs">VS</span>
-        <img class="kai" src={kaiAsset} data-fallback={kaiFallback} alt="Pirat Kai" />
+        <img id="introBossSprite" class="kai" src={kaiAsset} data-fallback={kaiFallback} alt="Pirat Kai" />
       </div>
-      <span class="boss-tag">☠ LEVEL 1 · PIRAT KAI</span>
-      <h1>Er klaut deine Wörter.</h1>
-      <p>Finde die passenden <b>Deutsch ↔ Englisch</b>-Paare, bevor Kai sie sich schnappt. Wer ein Paar findet, darf direkt noch einmal.</p>
-      <div class="rules"><div class="rule"><b>1. MERKEN</b>Karten aufdecken</div><div class="rule"><b>2. LERNEN</b>Übersetzung finden</div><div class="rule"><b>3. DUELLIEREN</b>Mehr Paare sammeln</div></div>
+      <span class="boss-tag" id="introBossTag">☠ LEVEL 1 · PIRAT KAI</span>
+      <h1 id="introTitle">Er verschiebt, was du dir merkst.</h1>
+      <p id="introCopy">Finde die passenden <b>Deutsch ↔ Englisch</b>-Paare und besiege Pirat Kai.</p>
+      <div class="boss-power"><small>BOSS-TRICK</small><b id="bossPowerName">Decktausch</b><span id="bossPowerCopy">Kai tauscht verdeckte Karten sichtbar miteinander.</span></div>
+      <div class="rules"><div class="rule"><b>1. MERKEN</b>Karten aufdecken</div><div class="rule"><b>2. LERNEN</b>Übersetzung finden</div><div class="rule"><b>3. DUELLIEREN</b>Mehr Punkte sammeln</div></div>
       <button class="cta" id="startBtn">⚔ MEMORY-DUELL STARTEN</button>
-      <span class="modal-note">DE → EN · 8 LERNPAARE · BOSS 1</span>
+      <span class="modal-note" id="introModalNote">DE → EN · 8 LERNPAARE · BOSS 1</span>
     </div>
   </section>
 
@@ -126,23 +186,23 @@ const bossConfig = {
           data-neutral={tulaNeutral} data-happy={tulaHappy} data-surprised={tulaSurprised}
           data-celebrating={tulaCelebrating} data-fallback={tulaFallback} />
         <span class="vs">VS</span>
-        <img class="kai" src={kaiAsset} data-fallback={kaiFallback} alt="Pirat Kai" />
+        <img id="resultBossSprite" class="kai" src={kaiAsset} data-fallback={kaiFallback} alt="Pirat Kai" />
       </div>
       <span class="boss-tag" id="resultTag">LEVEL 1</span>
       <h2 id="resultTitle">Du hast gewonnen!</h2>
       <p id="resultCopy">Pirat Kai muss die Wörterbucht räumen.</p>
-      <div class="result-stats"><div class="result-stat"><b id="resultPlayer">0</b><small>DEINE PAARE</small></div><div class="result-stat"><b id="resultShells">+0</b><small>MUSCHELN</small></div><div class="result-stat"><b id="resultXp">+0</b><small>XP</small></div></div>
+      <div class="result-stats"><div class="result-stat"><b id="resultPlayer">0</b><small>DEINE PUNKTE</small></div><div class="result-stat"><b id="resultShells">+0</b><small>MUSCHELN</small></div><div class="result-stat"><b id="resultXp">+0</b><small>XP</small></div></div>
       <button class="cta" id="againBtn">↻ NOCH EIN DUELL</button>
-      <span class="modal-note">NÄCHSTE ETAPPE: KAPITÄN BRAX</span>
+      <span class="modal-note" id="resultModalNote">NÄCHSTE ETAPPE: KAPITÄN BRAX</span>
     </div>
   </section>
 
   <section class="help hidden" id="help">
     <div class="help-card">
       <h3>So funktioniert Pirate Pairs</h3>
-      <p>Du deckst zwei Karten auf. Nur eine deutsche Karte und ihre englische Übersetzung bilden ein Paar. Bei einem Treffer behältst du das Paar und spielst weiter.</p>
-      <p>Kai beobachtet dieselben Karten und merkt sich einige Positionen. Sein Gedächtnis ist auf Level 1 absichtlich nicht perfekt; spätere Bosse können deutlich schlauer werden.</p>
-      <p><b>Muschelblick:</b> Einmal pro Runde darf Tula zwei zufällige verdeckte Karten kurz aufdecken.</p>
+      <p>Du deckst zwei Karten auf. Nur eine deutsche Karte und ihre englische Übersetzung bilden ein Paar. Ein gefundenes Paar bringt einen Punkt.</p>
+      <p>Jeder Boss hat einen eigenen Trick. Die Fähigkeit wird sichtbar angekündigt, damit du reagieren und taktisch spielen kannst. Bomben- und spätere Bonusmechaniken können den Punktestand zusätzlich verändern.</p>
+      <p><b>Muschelblick:</b> Einmal pro Runde darf Tula zwei zufällige verfügbare Karten kurz aufdecken.</p>
       <button id="closeHelp">VERSTANDEN</button>
     </div>
   </section>
