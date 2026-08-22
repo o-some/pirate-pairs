@@ -46,6 +46,27 @@ jobs:
         with:
           path: ./dist
 
+  live-b05-smoke:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify live B05 deployment
+        run: npm run test:live-b05
+
   deploy:
     if: github.event_name != 'pull_request'
     environment:
