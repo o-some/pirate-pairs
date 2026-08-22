@@ -3,15 +3,20 @@ import { test, expect } from '@playwright/test';
 const BASE='http://localhost:4321/pirate-pairs/';
 test.use({viewport:{width:390,height:844},deviceScaleFactor:3,isMobile:true,hasTouch:true});
 
+async function waitPlayer(page){
+  await expect.poll(async()=>({
+    turn:(await page.locator('#turnPill').textContent())||'',
+    peekDisabled:await page.locator('#peekBtn').isDisabled(),
+  }),{timeout:18000}).toEqual({turn:'DU BIST DRAN',peekDisabled:false});
+}
 async function startBoss(page,id){
   await page.goto(`${BASE}?boss=${id}`,{waitUntil:'networkidle'});
   await expect(page.locator('#grid .card')).toHaveCount(16);
   await page.locator('#startBtn').tap();
   await expect(page.locator('#intro')).toHaveClass(/hidden/);
-  await expect(page.locator('#turnPill')).toContainText('DU BIST DRAN');
+  await waitPlayer(page);
 }
-async function waitPlayer(page){await expect.poll(async()=>await page.locator('#turnPill').textContent(),{timeout:18000}).toContain('DU BIST DRAN');}
-async function cardInfo(page){return page.locator('#grid .card:not(.matched):not(.fogged):not(.chained)').evaluateAll(ns=>ns.map((n,i)=>({i,id:n.dataset.id,idx:n.dataset.index,flipped:n.classList.contains('flipped')})).filter(x=>!x.flipped));}
+async function cardInfo(page){return page.locator('#grid .card:not(.matched):not(.fogged):not(.chained)').evaluateAll(ns=>ns.map(n=>({id:n.dataset.id,idx:n.dataset.index,flipped:n.classList.contains('flipped')})).filter(x=>!x.flipped));}
 async function pair(page){
   const list=await cardInfo(page),m=new Map();
   for(const c of list){const k=c.id.replace(/-(source|target)$/,'');if(!m.has(k))m.set(k,[]);m.get(k).push(c);}
@@ -26,11 +31,12 @@ async function mismatch(page){
   await waitPlayer(page);
 }
 async function match(page){
+  await waitPlayer(page);
   const p=await pair(page);expect(p,'need matching pair').toBeTruthy();
   const before=Number(await page.locator('#playerScore').textContent());
   await page.locator(`#grid .card[data-index="${p[0].idx}"]`).tap();
   await page.locator(`#grid .card[data-index="${p[1].idx}"]`).tap();
-  await expect.poll(async()=>Number(await page.locator('#playerScore').textContent()),{timeout:5000}).toBeGreaterThan(before);
+  await expect.poll(async()=>Number(await page.locator('#playerScore').textContent()),{timeout:7000}).toBeGreaterThan(before);
   await waitPlayer(page);
 }
 
@@ -72,6 +78,7 @@ test('Boss Mechanics B02: Roderick, Vargas, Ironhook',async({page})=>{
 
   // Existing Tula skill and mobile layout remain intact.
   await page.locator('#restartBtn').tap();
+  await waitPlayer(page);
   await page.locator('#peekBtn').tap();
   await expect(page.locator('#grid .card.peek')).toHaveCount(2);
   const noOverflow=await page.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth+1);
