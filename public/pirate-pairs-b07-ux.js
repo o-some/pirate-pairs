@@ -240,6 +240,8 @@
   function enhanceFinalVictory(){
     if(!result||result.classList.contains('hidden'))return;
     if(currentBossId()!==10||!/PIRATENKÖNIG BESIEGT/i.test(resultTag?.textContent||''))return;
+    if(result.dataset.stageEnhanced==='1')return;
+    result.dataset.stageEnhanced='1';
     const idx=STAGES.indexOf(currentStage);
     const next=idx>=0&&idx<STAGES.length-1?STAGES[idx+1]:null;
     const restartStage=next||'A1';
