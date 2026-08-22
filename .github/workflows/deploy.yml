@@ -70,9 +70,9 @@ jobs:
 
       - name: Start preview
         run: |
-          npm run preview -- --host 127.0.0.1 > /tmp/pirate-pairs-preview.log 2>&1 &
+          npm run preview > /tmp/pirate-pairs-preview.log 2>&1 &
           for i in {1..30}; do
-            if curl -fsS http://127.0.0.1:4321/pirate-pairs/ >/dev/null; then exit 0; fi
+            if curl -fsS http://localhost:4321/pirate-pairs/ >/dev/null; then exit 0; fi
             sleep 1
           done
           cat /tmp/pirate-pairs-preview.log
