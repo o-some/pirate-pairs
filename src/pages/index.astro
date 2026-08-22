@@ -1,7 +1,7 @@
 ---
 const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
 const styleAsset = `${base}pirate-pairs.css`;
-const scriptAsset = `${base}pirate-pairs-b03.js`;
+const scriptAsset = `${base}pirate-pairs-b04.js`;
 
 // Dropbox is the master/source of truth. Runtime mirrors are pinned to immutable
 // GitHub commits so this standalone game cannot drift when sibling repos change.
@@ -24,6 +24,7 @@ const ironhookAsset = `${bossRoot}/boss-06-kapitaen-ironhook.png`;
 const thorneAsset = `${bossRoot}/boss-07-admiral-thorne.png`;
 const corvinAsset = `${bossRoot}/boss-08-kartenmeister-corvin.png`;
 const azrakAsset = `${bossRoot}/boss-09-schattenfuerst-azrak.png`;
+const varkosAsset = `${bossRoot}/boss-10-piratenkoenig-varkos.png`;
 
 const tulaFallback = `${base}assets/tula.svg`;
 const kaiFallback = `${base}assets/kai.svg`;
@@ -192,12 +193,12 @@ const bossConfig = {
       memoryStrength: 0.89,
       forgetChance: 0.04,
       thinkingDelay: 560,
-      introTitle: 'Corvin ordnet das ganze Deck neu.',
-      introCopy: 'Kartenmeister Corvin verschiebt eine vollständige verdeckte Reihe oder Spalte zyklisch um eine Position. Du siehst die Bewegung – aber die Karten bleiben geschlossen.',
+      introTitle: 'Corvin ordnet das Deck neu.',
+      introCopy: 'Kartenmeister Corvin verschiebt die noch freien verdeckten Karten einer Reihe oder Spalte zyklisch. Bereits eroberte Karten bleiben als feste Anker liegen.',
       ability: {
         type: 'line-shift',
         name: 'Deck-Manipulation',
-        description: 'Alle drei deiner Versuche verschiebt Corvin sichtbar eine komplette freie 4er-Reihe oder -Spalte um eine Position.',
+        description: 'Alle drei deiner Versuche verschiebt Corvin sichtbar mindestens zwei freie Karten innerhalb einer echten Reihe oder Spalte.',
         everyPlayerAttempts: 3,
       },
     },
@@ -218,6 +219,25 @@ const bossConfig = {
         name: 'Schattenzug',
         description: 'Alle zwei deiner Versuche blockiert Azrak eine Karte für deinen nächsten Versuch. Nach deiner ersten Auswahl wandert der Schatten auf eine andere verdeckte Karte.',
         everyPlayerAttempts: 2,
+      },
+    },
+    {
+      bossId: 10,
+      name: 'Piratenkönig Varkos',
+      shortName: 'VARKOS',
+      image: varkosAsset,
+      fallback: bossFallback,
+      location: 'KRONENFESTUNG',
+      memoryStrength: 0.95,
+      forgetChance: 0.02,
+      thinkingDelay: 500,
+      introTitle: 'Der Piratenkönig kämpft in drei Phasen.',
+      introCopy: 'Varkos wechselt seine Taktik mit dem Spielfortschritt: erst <b>Kartentausch</b>, dann <b>Bomben und Ketten</b>, im Finale <b>Reihen- und Spaltenverschiebungen</b>. Jede Phase wird sichtbar angekündigt.',
+      ability: {
+        type: 'royal-chaos',
+        name: 'Königliches Chaos',
+        description: 'PHASE I: sichtbarer Decktausch · PHASE II: abwechselnd Kronenbombe und Kronenkette · PHASE III: sichtbare Formationsverschiebung nach jedem Versuch.',
+        everyPlayerAttempts: 1,
       },
     },
   ],
@@ -242,6 +262,7 @@ const bossConfig = {
   <link rel="stylesheet" href={`${base}pirate-pairs-bosses.css`} />
   <link rel="stylesheet" href={`${base}pirate-pairs-bosses-b02.css`} />
   <link rel="stylesheet" href={`${base}pirate-pairs-bosses-b03.css`} />
+  <link rel="stylesheet" href={`${base}pirate-pairs-bosses-b04.css`} />
 </head>
 <body style={`--pp-harbor:url("${harborAsset}")`}>
   <div class="app" id="app">
