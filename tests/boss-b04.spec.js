@@ -6,10 +6,15 @@ test.use({viewport:{width:390,height:844},deviceScaleFactor:3,isMobile:true,hasT
 const pairKey=id=>String(id||'').replace(/-(source|target)$/,'');
 
 async function waitPlayer(page){
-  await expect.poll(async()=>({
-    turn:(await page.locator('#turnPill').textContent())||'',
-    peekDisabled:await page.locator('#peekBtn').isDisabled(),
-  }),{timeout:20000}).toEqual({turn:'DU BIST DRAN',peekDisabled:false});
+  await expect.poll(async()=>{
+    const turn=(await page.locator('#turnPill').textContent())||'';
+    const peekDisabled=await page.locator('#peekBtn').isDisabled();
+    const peekText=(await page.locator('#peekBtn').textContent())||'';
+    const bannerClass=(await page.locator('#bossAbilityBanner').getAttribute('class'))||'';
+    const transient=await page.locator('#grid .card.boss-swap-a,#grid .card.boss-swap-b,#grid .card.corvin-shifting,#grid .card.bomb-targeting,#grid .card.chain-forming').count();
+    const faceUp=await page.locator('#grid .card.flipped:not(.matched)').count();
+    return turn==='DU BIST DRAN'&&!bannerClass.includes('show')&&transient===0&&faceUp===0&&(!peekDisabled||peekText.includes('VERBRAUCHT'));
+  },{timeout:20000}).toBe(true);
 }
 
 async function startVarkos(page){
