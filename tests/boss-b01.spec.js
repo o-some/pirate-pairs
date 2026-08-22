@@ -80,13 +80,14 @@ test('Boss mechanics B01: swap, bomb and fog', async ({ page }) => {
   expect(await page.locator('#progress').textContent()).toBe(progressBeforeBomb);
   await expect(page.locator('#grid .card.flipped')).toHaveCount(1);
 
-  // Boss 3 — Blackfinn: fog blocks player input for one attempt.
+  // Boss 3 — Blackfinn: fog is semantically disabled and the JS guard rejects raw clicks too.
   await startBoss(page, 3);
   await completeKnownPair(page);
   await completeKnownPair(page);
   await expect.poll(async () => page.locator('#grid .card.fogged').count(), { timeout: 5000 }).toBeGreaterThan(0);
   const fogged = page.locator('#grid .card.fogged').first();
-  await fogged.tap();
+  await expect(fogged).toHaveAttribute('aria-disabled', 'true');
+  await fogged.evaluate(el => el.click());
   await expect(fogged).not.toHaveClass(/flipped/);
 
   const selectable = page.locator('#grid .card:not(.matched):not(.fogged)');
