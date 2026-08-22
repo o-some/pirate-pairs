@@ -45,6 +45,12 @@ async function findPair(page,options={}){
   return [...groups.values()].find(group=>group.length===2);
 }
 
+async function findMismatch(page){
+  const list=await playableCards(page);
+  for(let i=0;i<list.length;i++)for(let j=i+1;j<list.length;j++)if(pairKey(list[i].id)!==pairKey(list[j].id))return [list[i],list[j]];
+  return null;
+}
+
 async function progress(page){
   const text=(await page.locator('#progress').textContent())||'0 / 8';
   return Number(text.split('/')[0].trim());
@@ -70,6 +76,40 @@ test('Boss Mechanics B04: Piratenkönig Varkos three-phase fight',async({page})=
   page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
 
   await startVarkos(page);
+
+  // Review regression: on the second completed PLAYER attempt, Royal Chaos must run before AI starts.
+  await matchPair(page);
+  const mismatch=await findMismatch(page);
+  expect(mismatch,'need mismatch for ordering regression').toBeTruthy();
+  await page.evaluate(()=>{
+    window.__varkosQaOrder=[];
+    const banner=document.querySelector('#bossAbilityBanner');
+    const title=document.querySelector('#bossAbilityTitle');
+    const turn=document.querySelector('#turnPill');
+    const record=()=>{
+      const events=window.__varkosQaOrder;
+      if(banner?.classList.contains('show')&&/VARKOS VERSCHIEBT/.test(title?.textContent||'')&&!events.includes('effect'))events.push('effect');
+      if(/VARKOS DENKT/.test(turn?.textContent||'')&&!events.includes('ai'))events.push('ai');
+    };
+    const observer=new MutationObserver(record);
+    observer.observe(banner,{attributes:true,subtree:true,childList:true,characterData:true});
+    observer.observe(title,{subtree:true,childList:true,characterData:true});
+    observer.observe(turn,{subtree:true,childList:true,characterData:true});
+    window.__varkosQaObserver=observer;
+    record();
+  });
+  await page.locator(`#grid .card[data-index="${mismatch[0].idx}"]`).tap();
+  await page.locator(`#grid .card[data-index="${mismatch[1].idx}"]`).tap();
+  await expect.poll(()=>page.evaluate(()=>window.__varkosQaOrder||[]),{timeout:12000}).toContain('effect');
+  await expect.poll(()=>page.evaluate(()=>window.__varkosQaOrder||[]),{timeout:12000}).toContain('ai');
+  const order=await page.evaluate(()=>window.__varkosQaOrder||[]);
+  expect(order.indexOf('effect')).toBeGreaterThanOrEqual(0);
+  expect(order.indexOf('effect')).toBeLessThan(order.indexOf('ai'));
+  await page.evaluate(()=>window.__varkosQaObserver?.disconnect());
+
+  // Restart to keep the deterministic phase test isolated from the mismatch/AI path above.
+  await page.locator('#restartBtn').evaluate(el=>el.click());
+  await waitPlayer(page);
 
   // Phase I: after two completed player attempts, Varkos visibly swaps hidden cards.
   await matchPair(page);
