@@ -9,8 +9,9 @@ Base production commit: `885e0cafd8d5708cde0401e11866782bd5b54d9d`
 ## Change
 - The Muschelblick control is removed from the visible bottom dock.
 - The original `#peekBtn` stays in the DOM but is hidden by CSS so the unchanged B04 engine can safely keep its existing references.
-- The existing ten B05 roadmap buttons remain the same interactive controls with the same preview listeners and accessibility semantics.
+- The existing ten B05 roadmap buttons remain the same interactive controls with the same preview/accessibility behavior.
 - Each roadmap medallion now displays the real pinned boss artwork instead of only a number.
+- Portrait artwork is lazy-loaded with `IntersectionObserver` only when a roadmap item is visible or near the horizontal viewport; off-screen bosses are not eagerly downloaded at startup.
 - The level number remains as a small overlay badge; current/past/future states remain intact.
 - Normal iPhones use larger portraits and the full dock width.
 - Short phones (<=700px high) use a deliberately compact portrait variant that stays within the prior compact dock footprint.
@@ -21,6 +22,6 @@ All portraits use the same immutable runtime boss source already used by the gam
 
 ## Safety
 - No changes to `public/pirate-pairs-b04.js`.
-- No changes to `public/pirate-pairs-boss-guide-b05.js`.
+- `public/pirate-pairs-boss-guide-b05.js` changes are limited to portrait loading inside the existing roadmap; preview, boss selection and gameplay ownership are unchanged.
 - No changes to boss mechanics, AI, scoring, vocabulary, progression, result flow, Astro config or package dependencies.
 - No `.card` transform/animation ownership changes.
