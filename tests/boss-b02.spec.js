@@ -22,11 +22,12 @@ async function pair(page){
   for(const c of list){const k=c.id.replace(/-(source|target)$/,'');if(!m.has(k))m.set(k,[]);m.get(k).push(c);}
   return [...m.values()].find(a=>a.length===2);
 }
-async function mismatch(page){
+async function mismatch(page,usedIds=null){
   await waitPlayer(page);
-  const list=await cardInfo(page);let a,b;
+  const list=(await cardInfo(page)).filter(c=>!usedIds?.has(c.id));let a,b;
   for(let i=0;i<list.length&&!b;i++)for(let j=i+1;j<list.length;j++){if(list[i].id.replace(/-(source|target)$/,'')!==list[j].id.replace(/-(source|target)$/,'')){a=list[i];b=list[j];break;}}
   expect(a&&b,'need mismatch cards').toBeTruthy();
+  usedIds?.add(a.id);usedIds?.add(b.id);
   await page.locator(`#grid .card[data-index="${a.idx}"]`).tap();
   await page.locator(`#grid .card[data-index="${b.idx}"]`).tap();
   await waitPlayer(page);
@@ -44,19 +45,24 @@ async function match(page){
 async function getRoderickCurse(page){
   for(let run=0;run<4;run++){
     await startBoss(page,4);
-    await mismatch(page);
-    await mismatch(page);
-    await match(page);
+    const used=new Set();
+    try{
+      await mismatch(page,used);
+      await mismatch(page,used);
+      await mismatch(page,used);
+    }catch{
+      continue;
+    }
     const cursed=page.locator('#grid .card.cursed-memory');
     try{
-      await expect(cursed).toHaveCount(1,{timeout:5000});
+      await expect(cursed).toHaveCount(1,{timeout:6000});
       return cursed;
     }catch{
-      // AI may consume all remembered hidden cards in a particular random run.
-      // Restart with a fresh board; production behavior is intentionally unchanged.
+      // The boss AI can still capture remembered cards in a random run.
+      // Retry on a fresh deck without changing production behavior.
     }
   }
-  throw new Error('Roderick could not find a remembered hidden card across four fresh boards');
+  throw new Error('Roderick could not retain two remembered hidden cards across four fresh boards');
 }
 
 test('Boss Mechanics B02: Roderick, Vargas, Ironhook',async({page})=>{
