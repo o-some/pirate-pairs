@@ -1,7 +1,7 @@
 ---
 const base = import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
 const styleAsset = `${base}pirate-pairs.css`;
-const scriptAsset = `${base}pirate-pairs-b02.js`;
+const scriptAsset = `${base}pirate-pairs-b03.js`;
 
 // Dropbox is the master/source of truth. Runtime mirrors are pinned to immutable
 // GitHub commits so this standalone game cannot drift when sibling repos change.
@@ -21,6 +21,9 @@ const blackfinnAsset = `${bossRoot}/boss-03-blackfinn.png`;
 const roderickAsset = `${bossRoot}/boss-04-alt-kapitaen-roderick.png`;
 const vargasAsset = `${bossRoot}/boss-05-piratenbaron-vargas.png`;
 const ironhookAsset = `${bossRoot}/boss-06-kapitaen-ironhook.png`;
+const thorneAsset = `${bossRoot}/boss-07-admiral-thorne.png`;
+const corvinAsset = `${bossRoot}/boss-08-kartenmeister-corvin.png`;
+const azrakAsset = `${bossRoot}/boss-09-schattenfuerst-azrak.png`;
 
 const tulaFallback = `${base}assets/tula.svg`;
 const kaiFallback = `${base}assets/kai.svg`;
@@ -160,6 +163,63 @@ const bossConfig = {
         everyPlayerAttempts: 3,
       },
     },
+    {
+      bossId: 7,
+      name: 'Admiral Thorne',
+      shortName: 'THORNE',
+      image: thorneAsset,
+      fallback: bossFallback,
+      location: 'KANONENBASTION',
+      memoryStrength: 0.86,
+      forgetChance: 0.05,
+      thinkingDelay: 580,
+      introTitle: 'Thorne nimmt dich ins Fadenkreuz.',
+      introCopy: 'Admiral Thorne markiert zwei Karten mit seinem Kanonenvisier. Benutzt du eine Zielkarte und findest in diesem Versuch kein Paar, erhält Thorne einen Bonuspunkt.',
+      ability: {
+        type: 'cannon',
+        name: 'Kanonenbeschuss',
+        description: 'Alle drei deiner Versuche markiert Thorne zwei Karten für genau deinen nächsten Versuch. Zielkarte + Fehlpaar = +1 Punkt für Thorne.',
+        everyPlayerAttempts: 3,
+      },
+    },
+    {
+      bossId: 8,
+      name: 'Kartenmeister Corvin',
+      shortName: 'CORVIN',
+      image: corvinAsset,
+      fallback: bossFallback,
+      location: 'KARTENKABINETT',
+      memoryStrength: 0.89,
+      forgetChance: 0.04,
+      thinkingDelay: 560,
+      introTitle: 'Corvin ordnet das ganze Deck neu.',
+      introCopy: 'Kartenmeister Corvin verschiebt eine vollständige verdeckte Reihe oder Spalte zyklisch um eine Position. Du siehst die Bewegung – aber die Karten bleiben geschlossen.',
+      ability: {
+        type: 'line-shift',
+        name: 'Deck-Manipulation',
+        description: 'Alle drei deiner Versuche verschiebt Corvin sichtbar eine komplette freie 4er-Reihe oder -Spalte um eine Position.',
+        everyPlayerAttempts: 3,
+      },
+    },
+    {
+      bossId: 9,
+      name: 'Schattenfürst Azrak',
+      shortName: 'AZRAK',
+      image: azrakAsset,
+      fallback: bossFallback,
+      location: 'SCHATTENBUCHT',
+      memoryStrength: 0.92,
+      forgetChance: 0.03,
+      thinkingDelay: 540,
+      introTitle: 'Azraks Schatten bleibt nie liegen.',
+      introCopy: 'Azrak verhüllt eine Karte vollständig im Schatten. Sie ist für dich blockiert. Sobald du deine erste Karte öffnest, wandert der Schatten sichtbar auf ein anderes Feld.',
+      ability: {
+        type: 'shadow',
+        name: 'Schattenzug',
+        description: 'Alle zwei deiner Versuche blockiert Azrak eine Karte für deinen nächsten Versuch. Nach deiner ersten Auswahl wandert der Schatten auf eine andere verdeckte Karte.',
+        everyPlayerAttempts: 2,
+      },
+    },
   ],
 };
 ---
@@ -181,6 +241,7 @@ const bossConfig = {
   <link rel="stylesheet" href={`${base}pirate-pairs-card-emblem.css`} />
   <link rel="stylesheet" href={`${base}pirate-pairs-bosses.css`} />
   <link rel="stylesheet" href={`${base}pirate-pairs-bosses-b02.css`} />
+  <link rel="stylesheet" href={`${base}pirate-pairs-bosses-b03.css`} />
 </head>
 <body style={`--pp-harbor:url("${harborAsset}")`}>
   <div class="app" id="app">
