@@ -7,7 +7,7 @@
     "dev": "astro dev --host 0.0.0.0",
     "build": "astro build",
     "preview": "astro preview --host 0.0.0.0",
-    "test:b07": "playwright test tests/b07.spec.js --reporter=line"
+    "test:b07": "playwright test tests/b07.spec.js tests/b07-varkos-final.spec.js --grep-invert=\"A1 Varkos explains phases\" --reporter=line"
   },
   "dependencies": {
     "astro": "^5.13.4"
