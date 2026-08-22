@@ -179,22 +179,73 @@
     <div class="boss-roadmap-head"><b>BOSS-ROUTE 1–10</b><span>TIPPE FÜR FÄHIGKEIT</span></div>
     <div class="boss-roadmap" id="bossRoadmap" role="group" aria-label="Boss-Vorschau"></div>`;
   const rail=shell.querySelector('#bossRoadmap');
+  const portraitGradient='radial-gradient(circle at 50% 38%, #18566a, #072d42 74%)';
+
+  function setPortraitBackground(button,url){
+    const medallion=button.querySelector('.boss-road-num');
+    if(!medallion)return;
+    medallion.style.backgroundImage=url?`url("${url}"), ${portraitGradient}`:portraitGradient;
+  }
+
+  function loadPortrait(button){
+    if(button.dataset.portraitLoaded==='1'||button.dataset.portraitLoading==='1')return;
+    const primary=button.dataset.bossImage||'';
+    const fallback=button.dataset.bossFallback||'';
+    if(!primary){button.dataset.portraitLoaded='1';return;}
+    button.dataset.portraitLoading='1';
+    const tryLoad=(url,allowFallback)=>{
+      const probe=new Image();
+      probe.decoding='async';
+      probe.onload=()=>{
+        if(!button.isConnected)return;
+        setPortraitBackground(button,url);
+        button.dataset.portraitLoaded='1';
+        delete button.dataset.portraitLoading;
+      };
+      probe.onerror=()=>{
+        if(allowFallback&&fallback&&fallback!==url){tryLoad(fallback,false);return;}
+        delete button.dataset.portraitLoading;
+        button.dataset.portraitLoaded='error';
+      };
+      probe.src=url;
+    };
+    tryLoad(primary,true);
+  }
+
+  const portraitObserver='IntersectionObserver' in window
+    ? new IntersectionObserver(entries=>{
+        entries.forEach(entry=>{
+          if(!entry.isIntersecting)return;
+          loadPortrait(entry.target);
+          portraitObserver.unobserve(entry.target);
+        });
+      },{root:rail,rootMargin:'0px 96px 0px 96px',threshold:.01})
+    : null;
 
   BOSSES.forEach(b=>{
     const button=document.createElement('button');
     button.type='button';
     button.className='boss-road-item future';
     button.dataset.bossId=String(b.bossId);
+    button.dataset.bossImage=b.image||'';
+    button.dataset.bossFallback=b.fallback||'';
     button.setAttribute('aria-label',`Level ${b.bossId}: ${b.name}. Fähigkeit ${b.ability?.name||'keine'}. Vorschau öffnen.`);
     button.innerHTML=`<span class="boss-road-num">${String(b.bossId).padStart(2,'0')}</span><span class="boss-road-name">${shortName(b)}</span>`;
+    setPortraitBackground(button,'');
     button.addEventListener('click',()=>openPreview(b,button));
     rail.appendChild(button);
+    if(portraitObserver)portraitObserver.observe(button);
   });
 
   // Keep the original button node so the gameplay listener already attached by B04 remains intact.
   skillbar.replaceChildren(shell,peekBtn);
   skillbar.classList.add('boss-dock');
   peekBtn.setAttribute('aria-label','Muschelblick einmal einsetzen');
+
+  if(!portraitObserver){
+    const activeButton=rail.querySelector(`.boss-road-item[data-boss-id="${currentBossId()}"]`);
+    if(activeButton)loadPortrait(activeButton);
+  }
 
   function updateRoadmap({scroll=true}={}){
     const active=currentBossId();
@@ -207,6 +258,7 @@
     });
     const current=rail.querySelector(`.boss-road-item[data-boss-id="${active}"]`);
     intro.setAttribute('aria-label',`${bossById(active).name}: ${bossById(active).ability?.name||'Bossfähigkeit'}`);
+    if(current&&!portraitObserver)loadPortrait(current);
     if(!scroll||!current)return;
     const target=current.offsetLeft-(rail.clientWidth-current.offsetWidth)/2;
     rail.scrollTo({left:Math.max(0,target),behavior:'smooth'});
