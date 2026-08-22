@@ -68,8 +68,8 @@ test('Boss Mechanics B02: Roderick, Vargas, Ironhook',async({page})=>{
   const idsBefore=await page.locator('#grid .card').evaluateAll(ns=>ns.map(n=>n.dataset.id));
   await cursed.tap();
   await expect.poll(async()=>await page.locator('#bossAbilityTitle').textContent(),{timeout:5000}).toMatch(/ERINNERUNG|FLUCH/);
-  const idsAfter=await page.locator('#grid .card').evaluateAll(ns=>ns.map(n=>n.dataset.id));
-  expect(idsAfter).not.toEqual(idsBefore);
+  await expect.poll(async()=>page.locator('#grid .card').evaluateAll(ns=>ns.map(n=>n.dataset.id)),{timeout:5000}).not.toEqual(idsBefore);
+  await waitPlayer(page);
 
   // Vargas: trigger tribute with 3 successful attempts, then satisfy it with a pair.
   await startBoss(page,5);
