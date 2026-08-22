@@ -10,6 +10,30 @@
   const bossById=id=>BOSSES.find(b=>Number(b.bossId)===Number(id))||BOSSES[0];
   const currentBossId=()=>Number(document.body.dataset.bossId||BOSSES[0]?.bossId||1);
   const shortName=b=>(b.shortName||b.name||`BOSS ${b.bossId}`).replace(/^PIRATENKÖNIG\s+/i,'VARKOS').replace(/^KAPITÄN\s+/i,'').slice(0,9);
+  const modalBackgroundNodes=()=>[
+    document.getElementById('app'),
+    intro,
+    document.getElementById('result'),
+    document.getElementById('help'),
+  ].filter(Boolean);
+
+  function setBackgroundInert(active){
+    modalBackgroundNodes().forEach(node=>{
+      node.inert=active;
+      if(active)node.setAttribute('aria-hidden','true');
+      else node.removeAttribute('aria-hidden');
+    });
+  }
+
+  function trapTab(event,overlay){
+    if(event.key!=='Tab')return;
+    const focusable=[...overlay.querySelectorAll('button:not([disabled]),[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')]
+      .filter(el=>!el.closest('.hidden'));
+    if(!focusable.length){event.preventDefault();return;}
+    const first=focusable[0],last=focusable[focusable.length-1];
+    if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
+    else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
+  }
 
   function enhanceBossIntro(){
     intro.classList.add('boss-explainer');
@@ -47,11 +71,22 @@
         <span class="boss-guide-foot">Die Boss-Vorschau verändert dein laufendes Duell nicht.</span>
       </div>`;
     document.body.appendChild(overlay);
+    const continueBtn=overlay.querySelector('#bossGuideContinue');
+    setBackgroundInert(true);
+    window.requestAnimationFrame(()=>continueBtn?.focus({preventScroll:true}));
+    overlay.addEventListener('keydown',event=>trapTab(event,overlay));
     const close=()=>{
+      if(overlay.classList.contains('hidden'))return;
       overlay.classList.add('hidden');
-      window.setTimeout(()=>startBtn?.focus({preventScroll:true}),180);
+      overlay.setAttribute('aria-hidden','true');
+      overlay.inert=true;
+      setBackgroundInert(false);
+      window.setTimeout(()=>{
+        overlay.remove();
+        startBtn?.focus({preventScroll:true});
+      },180);
     };
-    overlay.querySelector('#bossGuideContinue')?.addEventListener('click',close);
+    continueBtn?.addEventListener('click',close);
     return overlay;
   }
 
@@ -59,9 +94,11 @@
     const overlay=document.createElement('section');
     overlay.id='bossPreview';
     overlay.className='boss-preview-overlay hidden';
+    overlay.inert=true;
     overlay.setAttribute('role','dialog');
     overlay.setAttribute('aria-modal','true');
     overlay.setAttribute('aria-labelledby','bossPreviewName');
+    overlay.setAttribute('aria-hidden','true');
     overlay.innerHTML=`
       <div class="boss-preview-card">
         <button class="boss-preview-x" type="button" aria-label="Boss-Vorschau schließen">×</button>
@@ -78,17 +115,36 @@
         <button class="boss-preview-close-main" type="button">OK</button>
       </div>`;
     document.body.appendChild(overlay);
-    const close=()=>overlay.classList.add('hidden');
+    let returnFocus=null;
+    const close=()=>{
+      if(overlay.classList.contains('hidden'))return;
+      overlay.classList.add('hidden');
+      overlay.setAttribute('aria-hidden','true');
+      overlay.inert=true;
+      setBackgroundInert(false);
+      window.setTimeout(()=>returnFocus?.focus?.({preventScroll:true}),80);
+    };
+    const openFrom=trigger=>{
+      returnFocus=trigger||document.activeElement;
+      setBackgroundInert(true);
+      overlay.inert=false;
+      overlay.removeAttribute('aria-hidden');
+      overlay.classList.remove('hidden');
+      window.requestAnimationFrame(()=>overlay.querySelector('.boss-preview-close-main')?.focus({preventScroll:true}));
+    };
     overlay.querySelector('.boss-preview-x')?.addEventListener('click',close);
     overlay.querySelector('.boss-preview-close-main')?.addEventListener('click',close);
     overlay.addEventListener('click',e=>{if(e.target===overlay)close();});
-    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!overlay.classList.contains('hidden'))close();});
-    return {overlay,close};
+    overlay.addEventListener('keydown',e=>{
+      if(e.key==='Escape'){e.preventDefault();close();return;}
+      trapTab(e,overlay);
+    });
+    return {overlay,close,openFrom};
   }
 
   const preview=createPreview();
 
-  function openPreview(b){
+  function openPreview(b,trigger){
     const active=currentBossId();
     const image=document.getElementById('bossPreviewImage');
     if(image){
@@ -114,15 +170,14 @@
           ? 'Bereits passiert · Du kannst den Trick jederzeit noch einmal nachlesen.'
           : 'Vorschau auf einen späteren Boss · Dein aktuelles Duell bleibt unverändert.';
     }
-    preview.overlay.classList.remove('hidden');
-    preview.overlay.querySelector('.boss-preview-close-main')?.focus({preventScroll:true});
+    preview.openFrom(trigger);
   }
 
   const shell=document.createElement('div');
   shell.className='boss-roadmap-shell';
   shell.innerHTML=`
     <div class="boss-roadmap-head"><b>BOSS-ROUTE 1–10</b><span>TIPPE FÜR FÄHIGKEIT</span></div>
-    <div class="boss-roadmap" id="bossRoadmap" role="list" aria-label="Boss-Vorschau"></div>`;
+    <div class="boss-roadmap" id="bossRoadmap" role="group" aria-label="Boss-Vorschau"></div>`;
   const rail=shell.querySelector('#bossRoadmap');
 
   BOSSES.forEach(b=>{
@@ -130,10 +185,9 @@
     button.type='button';
     button.className='boss-road-item future';
     button.dataset.bossId=String(b.bossId);
-    button.setAttribute('role','listitem');
     button.setAttribute('aria-label',`Level ${b.bossId}: ${b.name}. Fähigkeit ${b.ability?.name||'keine'}. Vorschau öffnen.`);
     button.innerHTML=`<span class="boss-road-num">${String(b.bossId).padStart(2,'0')}</span><span class="boss-road-name">${shortName(b)}</span>`;
-    button.addEventListener('click',()=>openPreview(b));
+    button.addEventListener('click',()=>openPreview(b,button));
     rail.appendChild(button);
   });
 
@@ -151,18 +205,16 @@
       btn.classList.toggle('future',id>active);
       if(id===active)btn.setAttribute('aria-current','step');else btn.removeAttribute('aria-current');
     });
-    if(!scroll)return;
     const current=rail.querySelector(`.boss-road-item[data-boss-id="${active}"]`);
-    if(current){
-      const target=current.offsetLeft-(rail.clientWidth-current.offsetWidth)/2;
-      rail.scrollTo({left:Math.max(0,target),behavior:'smooth'});
-    }
     intro.setAttribute('aria-label',`${bossById(active).name}: ${bossById(active).ability?.name||'Bossfähigkeit'}`);
+    if(!scroll||!current)return;
+    const target=current.offsetLeft-(rail.clientWidth-current.offsetWidth)/2;
+    rail.scrollTo({left:Math.max(0,target),behavior:'smooth'});
   }
 
   enhanceBossIntro();
-  updateRoadmap({scroll:false});
   createStartGuide();
+  window.requestAnimationFrame(()=>updateRoadmap({scroll:true}));
 
   const observer=new MutationObserver(mutations=>{
     if(mutations.some(m=>m.type==='attributes'&&m.attributeName==='data-boss-id')){
