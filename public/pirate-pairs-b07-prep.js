@@ -122,4 +122,99 @@
   document.body.dataset.languageStage=stage;
   document.body.dataset.stageIndex=String(stageIndex);
   window.__PIRATE_PAIRS_STAGE__={stage,stageIndex,stages:STAGES,meta:stageData};
+
+  // B08 — iOS/Safari input safety.
+  // B05 uses `inert` to isolate its first-start guide and boss preview. Safari can
+  // keep an element non-interactive for a render turn after the guide closes. The
+  // repeated release below is deliberately idempotent and never changes gameplay.
+  function installInputSafety(){
+    const app=document.getElementById('app');
+    const intro=document.getElementById('intro');
+    const result=document.getElementById('result');
+    const help=document.getElementById('help');
+    const startBtn=document.getElementById('startBtn');
+    const restartBtn=document.getElementById('restartBtn');
+    if(!intro||!startBtn)return;
+
+    const nodes=[app,intro,result,help].filter(Boolean);
+    const guideOpen=()=>{
+      const guide=document.getElementById('bossGuideStart');
+      return !!guide&&!guide.classList.contains('hidden')&&guide.getAttribute('aria-hidden')!=='true';
+    };
+    const previewOpen=()=>{
+      const preview=document.getElementById('bossPreview');
+      return !!preview&&!preview.classList.contains('hidden')&&preview.getAttribute('aria-hidden')!=='true';
+    };
+    const clearInert=(node,{aria=true}={})=>{
+      if(!node)return;
+      try{node.inert=false;}catch{}
+      node.removeAttribute('inert');
+      if(aria)node.removeAttribute('aria-hidden');
+      node.style.pointerEvents='';
+    };
+    const release=()=>{
+      // While the read-only boss preview is open, B05 intentionally owns modal isolation.
+      if(previewOpen())return;
+      // The first-start guide itself already blocks pointer input. Keeping the boss intro
+      // inert underneath it is unnecessary and is the iOS failure mode this hotfix avoids.
+      clearInert(intro,{aria:!guideOpen()});
+      if(!guideOpen())nodes.forEach(node=>clearInert(node));
+    };
+    const settle=()=>{
+      release();
+      requestAnimationFrame(()=>{
+        release();
+        requestAnimationFrame(release);
+      });
+      window.setTimeout(release,220);
+    };
+
+    // A reset control outside all inert-able containers remains reachable even before
+    // the boss intro has been started. In active gameplay the normal header reset remains.
+    let safeReset=document.getElementById('b08IntroReset');
+    if(!safeReset){
+      safeReset=document.createElement('button');
+      safeReset.id='b08IntroReset';
+      safeReset.type='button';
+      safeReset.setAttribute('aria-label','Duell neu starten');
+      safeReset.textContent='↻';
+      document.body.appendChild(safeReset);
+      const style=document.createElement('style');
+      style.id='b08-input-safety-style';
+      style.textContent=`
+        #b08IntroReset{position:fixed;z-index:175;right:max(14px,env(safe-area-inset-right));top:max(14px,env(safe-area-inset-top));width:44px;height:44px;display:grid;place-items:center;border:1px solid rgba(240,203,111,.78);border-radius:50%;background:linear-gradient(180deg,rgba(87,25,36,.98),rgba(27,15,28,.99));color:#ffe39b;box-shadow:inset 0 1px rgba(255,242,190,.15),0 8px 20px rgba(0,0,0,.36);font:900 23px/1 system-ui,sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+        #b08IntroReset[hidden]{display:none!important}
+        #intro:not(.hidden) #startBtn{pointer-events:auto!important;touch-action:manipulation!important;position:relative;z-index:3}
+      `;
+      document.head.appendChild(style);
+    }
+    const syncReset=()=>{
+      const visible=!intro.classList.contains('hidden')&&!guideOpen()&&!previewOpen();
+      safeReset.hidden=!visible;
+    };
+    safeReset.addEventListener('click',()=>{
+      const url=new URL(location.href);
+      location.replace(url.toString());
+    });
+
+    startBtn.disabled=false;
+    startBtn.removeAttribute('aria-disabled');
+    startBtn.addEventListener('pointerdown',settle,true);
+    startBtn.addEventListener('touchstart',settle,{capture:true,passive:true});
+    restartBtn?.addEventListener('pointerdown',settle,true);
+    restartBtn?.addEventListener('touchstart',settle,{capture:true,passive:true});
+
+    const observer=new MutationObserver(()=>{
+      settle();
+      syncReset();
+    });
+    observer.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class','aria-hidden','inert']});
+
+    document.body.dataset.inputSafety='b08';
+    settle();
+    syncReset();
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installInputSafety,{once:true});
+  else installInputSafety();
 })();
