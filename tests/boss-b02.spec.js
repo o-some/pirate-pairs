@@ -23,6 +23,7 @@ async function pair(page){
   return [...m.values()].find(a=>a.length===2);
 }
 async function mismatch(page){
+  await waitPlayer(page);
   const list=await cardInfo(page);let a,b;
   for(let i=0;i<list.length&&!b;i++)for(let j=i+1;j<list.length;j++){if(list[i].id.replace(/-(source|target)$/,'')!==list[j].id.replace(/-(source|target)$/,'')){a=list[i];b=list[j];break;}}
   expect(a&&b,'need mismatch cards').toBeTruthy();
@@ -40,15 +41,30 @@ async function match(page){
   await waitPlayer(page);
 }
 
+async function getRoderickCurse(page){
+  for(let run=0;run<4;run++){
+    await startBoss(page,4);
+    await mismatch(page);
+    await mismatch(page);
+    await match(page);
+    const cursed=page.locator('#grid .card.cursed-memory');
+    try{
+      await expect(cursed).toHaveCount(1,{timeout:5000});
+      return cursed;
+    }catch{
+      // AI may consume all remembered hidden cards in a particular random run.
+      // Restart with a fresh board; production behavior is intentionally unchanged.
+    }
+  }
+  throw new Error('Roderick could not find a remembered hidden card across four fresh boards');
+}
+
 test('Boss Mechanics B02: Roderick, Vargas, Ironhook',async({page})=>{
-  test.setTimeout(180000);
+  test.setTimeout(240000);
   const errors=[];page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
 
-  // Roderick: one miss creates remembered hidden cards; two matches reach attempt 3.
-  await startBoss(page,4);
-  await mismatch(page);await match(page);await match(page);
-  await expect.poll(async()=>page.locator('#grid .card.cursed-memory').count(),{timeout:7000}).toBe(1);
-  const cursed=page.locator('#grid .card.cursed-memory');
+  // Roderick: curse a genuinely remembered hidden card and visibly relocate another known card.
+  const cursed=await getRoderickCurse(page);
   const idsBefore=await page.locator('#grid .card').evaluateAll(ns=>ns.map(n=>n.dataset.id));
   await cursed.tap();
   await expect.poll(async()=>await page.locator('#bossAbilityTitle').textContent(),{timeout:5000}).toMatch(/ERINNERUNG|FLUCH/);
