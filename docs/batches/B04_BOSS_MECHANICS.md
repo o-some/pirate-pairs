@@ -28,6 +28,11 @@ Mechanic: Königliches Chaos — a deterministic three-phase final fight.
 - Already secured cards stay anchored and never move.
 - At least two free hidden cards are required for a shift.
 
+## Turn-order guarantee
+- A due Varkos phase transition/effect resolves immediately after the player's completed attempt and before a Varkos AI turn starts.
+- This applies after both player matches and player mismatches.
+- AI scoring streaks therefore cannot skip or retroactively replace the Royal Chaos effect owed for a completed player attempt.
+
 ## Phase UX
 - The current Varkos phase is shown directly inside the level tag.
 - Phase transitions are announced through the existing boss-ability banner.
