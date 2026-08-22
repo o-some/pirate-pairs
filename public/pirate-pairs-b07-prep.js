@@ -104,6 +104,19 @@
     });
     bossData.stage=stage;
     bossNode.textContent=JSON.stringify(bossData);
+
+    // Only the active boss selector applies, so the browser does not eagerly fetch
+    // all ten portraits. The local SVG is a second layer and remains visible when
+    // the immutable remote PNG is unavailable.
+    const style=document.createElement('style');
+    style.id='b07-current-boss-portrait-fallback';
+    style.textContent=bossData.bosses.map(b=>{
+      const primary=String(b.image||'').replace(/"/g,'\\"');
+      const fallback=String(b.fallback||'').replace(/"/g,'\\"');
+      const layers=[primary&&`url("${primary}")`,fallback&&`url("${fallback}")`,'radial-gradient(circle at 50% 38%, #18566a, #072d42 74%)'].filter(Boolean).join(', ');
+      return `body[data-boss-id="${b.bossId}"] #bossRoadmap .boss-road-item[data-boss-id="${b.bossId}"].b07-current-boss .boss-road-num{background-image:${layers}!important}`;
+    }).join('\n');
+    document.head.appendChild(style);
   }
 
   document.body.dataset.languageStage=stage;
