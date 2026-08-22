@@ -46,6 +46,44 @@ jobs:
         with:
           path: ./dist
 
+  boss-smoke:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Check B04 engine syntax
+        run: node --check public/pirate-pairs-b04.js
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Build
+        run: npm run build
+
+      - name: Start preview
+        run: |
+          npm run preview > /tmp/pirate-pairs-preview.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://localhost:4321/pirate-pairs/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/pirate-pairs-preview.log
+          exit 1
+
+      - name: Run Boss B04 smoke test
+        run: npm run test:boss-b04
+
   deploy:
     if: github.event_name != 'pull_request'
     environment:
