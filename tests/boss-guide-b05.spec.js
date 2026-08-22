@@ -64,11 +64,17 @@ async function runCoreGuideFlow(page){
   expect(await page.locator('#bossRoadmap .boss-road-item').evaluateAll(nodes=>nodes.every(node=>node.tagName==='BUTTON'&&!node.hasAttribute('role')))).toBe(true);
   await expect(page.locator('#peekBtn')).toHaveAttribute('aria-label','Muschelblick einmal einsetzen');
 
+  // Confirm the boss explainer first; the roadmap belongs to the playable screen behind the modal.
+  await page.locator('#startBtn').click();
+  await expect(page.locator('#intro')).toHaveClass(/hidden/);
+  await waitForPlayer(page);
+
   // Preview a future boss; current duel, URL and deck must remain unchanged.
   const urlBefore=page.url();
   const bossBefore=(await page.locator('#bossName').textContent())||'';
   const idsBefore=await gridIds(page);
-  await page.locator('#bossRoadmap .boss-road-item[data-boss-id="10"]').click();
+  const varkosRoadButton=page.locator('#bossRoadmap .boss-road-item[data-boss-id="10"]');
+  await varkosRoadButton.click();
   await expect(page.locator('#bossPreview')).toBeVisible();
   await expect(page.locator('#bossPreviewName')).toHaveText('Piratenkönig Varkos');
   await expect(page.locator('#bossPreviewPower')).toHaveText('Königliches Chaos');
@@ -82,11 +88,9 @@ async function runCoreGuideFlow(page){
   await expect(page.locator('#bossPreview')).toHaveClass(/hidden/);
   expect(await page.locator('#app').evaluate(el=>el.inert)).toBe(false);
   expect(await gridIds(page)).toEqual(idsBefore);
+  await expect(varkosRoadButton).toBeFocused();
 
-  // Start real gameplay. The original B04 listener on the moved Muschelblick button must still work.
-  await page.locator('#startBtn').click();
-  await expect(page.locator('#intro')).toHaveClass(/hidden/);
-  await waitForPlayer(page);
+  // The original B04 listener on the moved Muschelblick button must still work.
   await page.locator('#peekBtn').click();
   await expect(page.locator('#grid .card.peek')).toHaveCount(2,{timeout:1500});
   await page.waitForTimeout(1500);
