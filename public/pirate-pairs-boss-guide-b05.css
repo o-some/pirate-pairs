@@ -124,3 +124,54 @@
   .boss-guide-overlay,.boss-preview-overlay{transition:none}
   .boss-roadmap{scroll-behavior:auto!important}
 }
+
+/* -------------------------------------------------------------------------
+   B06 — Boss Portrait Dock
+   Visual-only override. The original #peekBtn stays in the DOM for B04
+   compatibility but is removed from the visible UI.
+   ------------------------------------------------------------------------- */
+.skillbar.boss-dock{
+  grid-template-columns:minmax(0,1fr)!important;
+  gap:0!important;
+  min-height:106px!important;
+  padding:8px!important;
+}
+.skillbar.boss-dock #peekBtn{display:none!important}
+.boss-roadmap-shell{width:100%;min-height:90px;padding:6px 6px 5px;border-radius:15px}
+.boss-roadmap-head{height:16px;padding:0 3px 4px;font-size:7.5px}
+.boss-roadmap-head span{font-size:6.6px}
+.boss-roadmap{gap:6px;padding:2px 2px 3px}
+.boss-road-item{flex:0 0 72px;min-width:72px;height:72px;grid-template-rows:53px 11px;align-content:center;padding:3px;border-radius:12px;overflow:visible}
+.boss-road-num{position:relative;width:54px;height:54px;border-radius:12px;font-size:0;overflow:hidden;background-repeat:no-repeat,no-repeat;background-size:auto 128%,100% 100%;background-position:center 24%,center;background-color:#0a3147;border-color:rgba(225,190,94,.52);box-shadow:inset 0 0 0 2px rgba(5,29,43,.72),0 3px 8px rgba(0,0,0,.24)}
+.boss-road-item::before{content:attr(data-boss-id);position:absolute;z-index:3;top:3px;left:3px;width:16px;height:16px;display:grid;place-items:center;border-radius:50%;border:1px solid rgba(239,207,119,.78);background:rgba(4,33,47,.92);color:#f4d98a;box-shadow:0 2px 5px rgba(0,0,0,.28);font:900 7px/1 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.boss-road-name{max-width:64px;font-size:7.2px;letter-spacing:.045em}
+.boss-road-item.current{box-shadow:inset 0 0 0 1px rgba(255,228,145,.18),0 0 12px rgba(224,187,94,.2)}
+.boss-road-item.current .boss-road-num{border-color:#f0d079;box-shadow:inset 0 0 0 2px rgba(7,42,55,.72),0 0 0 1px rgba(255,225,135,.18),0 4px 10px rgba(0,0,0,.28)}
+.boss-road-item.current::after{top:-4px;right:-3px;padding:2px 4px;font-size:5.2px}
+.boss-road-item.past{opacity:.7}
+.boss-road-item.past .boss-road-num::after{content:"✓";position:absolute;right:3px;bottom:3px;width:14px;height:14px;margin:0;display:grid;place-items:center;border-radius:50%;background:#4d907f;border:1px solid rgba(236,231,194,.72);color:#fff;font-size:8px;box-shadow:0 2px 5px rgba(0,0,0,.28)}
+.boss-road-item[data-boss-id="1"] .boss-road-num{background-image:url("https://raw.githubusercontent.com/o-some/word-guardians/927afa882df75ab0c74c426d822af89767b5ec38/assets/bosses/boss-01-pirat-kai.png"),radial-gradient(circle at 50% 38%,#18566a,#072d42 74%)}
+.boss-road-item[data-boss-id="2"] .boss-road-num{background-image:url("https://raw.githubusercontent.com/o-some/word-guardians/927afa882df75ab0c74c426d822af89767b5ec38/assets/bosses/boss-02-kapitaen-brax.png"),radial-gradient(circle at 50% 38%,#18566a,#072d42 74%)}
+.boss-road-item[data-boss-id="3"] .boss-road-num{background-image:url("https://raw.githubusercontent.com/o-some/word-guardians/927afa882df75ab0c74c426d822af89767b5ec38/assets/bosses/boss-03-blackfinn.png"),radial-gradient(circle at 50% 38%,#18566a,#072d42 74%)}
+.boss-road-item[data-boss-id="4"] .boss-road-num{background-image:url("https://raw.githubusercontent.com/o-some/word-guardians/927afa882df75ab0c74c426d822af89767b5ec38/assets/bosses/boss-04-alt-kapitaen-roderick.png"),radial-gradient(circle at 50% 38%,#18566a,#072d42 74%)}
+.boss-road-item[data-boss-id="5"] .boss-road-num{background-image:url("https://raw.githubusercontent.com/o-some/word-guardians/927afa882df75ab0c74c426d822af89767b5ec38/assets/bosses/boss-05-piratenbaron-vargas.png"),radial-gradient(circle at 50% 38%,#18566a,#072d42 74%)}
+.boss-road-item[data-boss-id="6"] .boss-road-num{background-image:url("https://raw.githubusercontent.com/o-some/word-guardians/927afa882df75ab0c74c426d822af89767b5ec38/assets/bosses/boss-06-kapitaen-ironhook.png"),radial-gradient(circle at 50% 38%,#18566a,#072d42 74%)}
+.boss-road-item[data-boss-id="7"] .boss-road-num{background-image:url("https://raw.githubusercontent.com/o-some/word-guardians/927afa882df75ab0c74c426d822af89767b5ec38/assets/bosses/boss-07-admiral-thorne.png"),radial-gradient(circle at 50% 38%,#18566a,#072d42 74%)}
+.boss-road-item[data-boss-id="8"] .boss-road-num{background-image:url("https://raw.githubusercontent.com/o-some/word-guardians/927afa882df75ab0c74c426d822af89767b5ec38/assets/bosses/boss-08-kartenmeister-corvin.png"),radial-gradient(circle at 50% 38%,#18566a,#072d42 74%)}
+.boss-road-item[data-boss-id="9"] .boss-road-num{background-image:url("https://raw.githubusercontent.com/o-some/word-guardians/927afa882df75ab0c74c426d822af89767b5ec38/assets/bosses/boss-09-schattenfuerst-azrak.png"),radial-gradient(circle at 50% 38%,#18566a,#072d42 74%)}
+.boss-road-item[data-boss-id="10"] .boss-road-num{background-image:url("https://raw.githubusercontent.com/o-some/word-guardians/927afa882df75ab0c74c426d822af89767b5ec38/assets/bosses/boss-10-piratenkoenig-varkos.png"),radial-gradient(circle at 50% 38%,#18566a,#072d42 74%)}
+
+/* Short phones retain portraits but stay within the prior compact footprint. */
+@media (max-height:700px) and (max-width:719px){
+  .skillbar.boss-dock{min-height:64px!important;padding:3px!important}
+  .boss-roadmap-shell{min-height:54px;padding:2px 4px 1px;border-radius:10px}
+  .boss-roadmap-head{height:8px;padding:0 2px;font-size:5.8px}
+  .boss-roadmap-head span{font-size:5px}
+  .boss-roadmap{gap:4px;padding:0 1px 1px}
+  .boss-road-item{flex-basis:53px;min-width:53px;height:43px;grid-template-rows:33px 7px;border-radius:8px;padding:1px}
+  .boss-road-num{width:34px;height:34px;border-radius:7px;background-size:auto 126%,100% 100%}
+  .boss-road-name{max-width:48px;font-size:5.2px}
+  .boss-road-item::before{width:11px;height:11px;top:1px;left:1px;font-size:5px}
+  .boss-road-item.current::after{top:-2px;right:-2px;font-size:4px;padding:1px 2px}
+  .boss-road-item.past .boss-road-num::after{width:9px;height:9px;right:1px;bottom:1px;font-size:5.5px}
+}
