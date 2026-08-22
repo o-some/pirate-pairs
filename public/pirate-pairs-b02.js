@@ -53,7 +53,7 @@
     if(chained.has(i)&&!c.matched){btn.classList.add('chained');btn.setAttribute('aria-disabled','true');}
   }
   function render(){
-    grid.innerHTML=''; cards.forEach((c,i)=>{ const btn=document.createElement('button'); btn.className='card'; btn.dataset.index=String(i); btn.dataset.id=c.id; btn.setAttribute('aria-label',c.matched?`${c.lang}: ${c.word}, bereits vergeben`:`Verdeckte Memory-Karte ${i+1}`); btn.innerHTML=`<span class="face back"><span class="crest">☸</span><span class="boss-marker" aria-hidden="true"></span></span><span class="face front"><span class="lang ${c.lang===(GAME.targetLabel||'EN')?'en':''}">${c.lang}</span><span class="word">${c.word}</span><span class="matched-by"></span></span>`; decorate(btn,c,i); btn.addEventListener('click',()=>onPlayerCard(i)); grid.appendChild(btn); }); updateHud();
+    grid.innerHTML=''; cards.forEach((c,i)=>{ const btn=document.createElement('button'); btn.className='card'; btn.dataset.index=String(i); btn.dataset.id=c.id; btn.setAttribute('aria-label',c.matched?`${c.lang}: ${c.word}, bereits vergeben`:`Verdeckte Memory-Karte ${i+1}`); btn.innerHTML=`<span class="face back"><span class="crest">☸</span><span class="boss-marker" aria-hidden="true"></span></span><span class="face front"><span class="lang ${c.lang===(GAME.targetLabel||'EN')?'en':''}">${c.lang}</span><span class="word">${c.word}</span><span class="matched-by"></span></span>`; decorate(btn,c,i); if(selected.includes(i)&&!c.matched){btn.classList.add('flipped');btn.setAttribute('aria-label',`${c.lang}: ${c.word}`);} btn.addEventListener('click',()=>onPlayerCard(i)); grid.appendChild(btn); }); updateHud();
   }
   function resetStates(){ playerAttempts=0; lastAbilityAttempt=-1; bombIndex=null; bombExpiresAt=null; fogged=new Set(); fogExpiresAt=null; cursedCardId=null; tributeActive=false; tributeDeadline=null; chained=new Set(); chainExpiresAt=null; playerSeen=new Set(); document.body.classList.remove('tribute-active'); hideBanner(); }
   function resetGame(showIntro=false){ cards=makeDeck();turn='player';selected=[];lock=showIntro;scores={player:0,ai:0};matchedPairs={player:0,ai:0};aiMemory=new Map();peekUsed=false;gameOver=false;lastOutcome='loss';resetStates();result.classList.add('hidden');peekBtn.disabled=false;peekBtn.textContent='1× EINSETZEN';applyBossUi();render();setTurnUi();showIntro?intro.classList.remove('hidden'):intro.classList.add('hidden'); }
@@ -114,7 +114,11 @@
     if(lock||turn!=='player'||gameOver||cards[i]?.matched||selected.includes(i)||isOpen(i))return;
     if(fogged.has(i)){const el=cardEl(i);el?.classList.remove('fog-denied');void el?.offsetWidth;el?.classList.add('fog-denied');showToast('🌫 Blackfinns Nebel blockiert diese Karte.','bad');return;}
     if(chained.has(i)){const el=cardEl(i);el?.classList.remove('chain-denied');void el?.offsetWidth;el?.classList.add('chain-denied');showToast('⛓ Ironhooks Kette hält diese Karte fest.','bad');return;}
-    if(cards[i].id===cursedCardId)await triggerMemoryCurse(i);if(bombIndex===i)await triggerBomb(i);reveal(i,'player');selected.push(i);setTurnUi();if(selected.length===2){lock=true;setTurnUi();await resolveSelection('player');}
+    const triggersBossEffect=cards[i].id===cursedCardId||bombIndex===i;
+    if(triggersBossEffect){lock=true;setTurnUi();if(cards[i].id===cursedCardId)await triggerMemoryCurse(i);if(bombIndex===i)await triggerBomb(i);}
+    reveal(i,'player');selected.push(i);
+    if(selected.length===2){lock=true;setTurnUi();await resolveSelection('player');}
+    else{lock=false;setTurnUi();}
   }
   async function resolveSelection(actor){
     const[a,b]=selected,match=cards[a].pairId===cards[b].pairId&&cards[a].lang!==cards[b].lang;await sleep(actor==='player'?650:520);
