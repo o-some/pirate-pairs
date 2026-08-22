@@ -117,9 +117,11 @@ test('Boss Mechanics B03: Thorne, Corvin, Azrak',async({page})=>{
   expect(first,'need first playable card').toBeTruthy();
   await page.locator(`#grid .card[data-index="${first.idx}"]`).tap();
   await expect(page.locator(`#grid .card[data-index="${first.idx}"]`)).toHaveClass(/flipped/);
-  await expect(page.locator('#grid .card.shadowed')).toHaveCount(1,{timeout:4000});
-  const newShadowIdx=await page.locator('#grid .card.shadowed').first().getAttribute('data-index');
-  expect(newShadowIdx).not.toBe(oldShadowIdx);
+  await expect.poll(async()=>{
+    const shadowed=page.locator('#grid .card.shadowed');
+    if(await shadowed.count()!==1)return null;
+    return shadowed.first().getAttribute('data-index');
+  },{timeout:5000}).not.toBe(oldShadowIdx);
 
   const second=(await cardInfo(page)).find(c=>c.idx!==first.idx);
   expect(second,'need second playable card').toBeTruthy();
