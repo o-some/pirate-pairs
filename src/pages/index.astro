@@ -46,12 +46,120 @@ const gameConfig = {
 const bossConfig = {
   startBossId: 1,
   bosses: [
-    { bossId:1, name:'Pirat Kai', shortName:'KAI', image:kaiAsset, fallback:kaiFallback, location:'WÖRTERBUCHT', memoryStrength:.61, forgetChance:.12, thinkingDelay:720, introTitle:'Er verschiebt, was du dir merkst.', introCopy:'Finde die passenden <b>Deutsch ↔ Englisch</b>-Paare. Kai tauscht im Kampf zwei verdeckte Karten sichtbar miteinander – ohne sie aufzudecken.', ability:{type:'swap',name:'Decktausch',description:'Alle drei deiner Versuche tauscht Kai zwei verdeckte Karten sichtbar miteinander. Folge der Bewegung genau.',everyPlayerAttempts:3}},
-    { bossId:2, name:'Kapitän Brax', shortName:'BRAX', image:braxAsset, fallback:bossFallback, location:'PULVERKAI', memoryStrength:.67, forgetChance:.10, thinkingDelay:690, introTitle:'Brax spielt mit Feuer.', introCopy:'Brax legt Bomben unter verdeckte Karten. Du siehst, welche Karte vermint wird. Öffnest du sie trotzdem, verlierst du einen Punkt und Brax bekommt einen.', ability:{type:'bomb',name:'Pulverfalle',description:'Alle drei deiner Versuche vermint Brax eine sichtbare Kartenposition für zwei Versuche: Treffer = −1 Punkt für dich, +1 für Brax.',everyPlayerAttempts:3}},
-    { bossId:3, name:'Blackfinn', shortName:'BLACKFINN', image:blackfinnAsset, fallback:bossFallback, location:'NEBELRIFF', memoryStrength:.72, forgetChance:.09, thinkingDelay:660, introTitle:'Blackfinn nimmt dir die Sicht.', introCopy:'Blackfinn ruft dichten Nebel über Teile des Decks. Die betroffenen Karten bleiben sichtbar an ihrem Platz, sind für deinen nächsten Versuch aber gesperrt.', ability:{type:'fog',name:'Nebelwand',description:'Alle zwei deiner Versuche blockiert Blackfinn bis zu drei verdeckte Karten für deinen nächsten Versuch. Er selbst kann sie weiterhin nutzen.',everyPlayerAttempts:2}},
-    { bossId:4, name:'Alt-Kapitän Roderick', shortName:'RODERICK', image:roderickAsset, fallback:bossFallback, location:'FLUCHANKER', memoryStrength:.76, forgetChance:.08, thinkingDelay:640, introTitle:'Roderick verflucht deine Erinnerung.', introCopy:'Roderick markiert eine Karte, die du bereits gesehen hast. Öffnest du sie erneut, verschiebt er sichtbar eine andere bekannte Karte und bringt dein Gedächtnis durcheinander.', ability:{type:'memory-curse',name:'Verfluchte Erinnerung',description:'Alle drei deiner Versuche verflucht Roderick eine bereits bekannte verdeckte Karte. Öffnest du sie erneut, verschiebt er sichtbar eine andere bekannte Karte.',everyPlayerAttempts:3}},
-    { bossId:5, name:'Piratenbaron Vargas', shortName:'VARGAS', image:vargasAsset, fallback:bossFallback, location:'TRIBUT-HAFEN', memoryStrength:.80, forgetChance:.07, thinkingDelay:620, introTitle:'Vargas verlangt seinen Anteil.', introCopy:'Wenn Vargas Tribut fordert, hast du zwei Versuche für ein Paar. Schaffst du es nicht, bekommt er automatisch einen Bonuspunkt.', ability:{type:'tribute',name:'Tribut',description:'Alle drei deiner Versuche fordert Vargas Tribut: Finde innerhalb der nächsten zwei Versuche ein Paar oder Vargas erhält +1 Punkt.',everyPlayerAttempts:3}},
-    { bossId:6, name:'Kapitän Ironhook', shortName:'IRONHOOK', image:ironhookAsset, fallback:bossFallback, location:'KETTENWERFT', memoryStrength:.83, forgetChance:.06, thinkingDelay:600, introTitle:'Ironhook legt das Deck in Ketten.', introCopy:'Ironhook fesselt zwei verdeckte Karten. Du kannst sie für zwei Versuche nicht wählen – er selbst kann sie weiterhin erreichen.', ability:{type:'chains',name:'Karten fesseln',description:'Alle drei deiner Versuche fesselt Ironhook zwei verdeckte Karten für deine nächsten zwei Versuche. Die Ketten bleiben klar sichtbar.',everyPlayerAttempts:3}},
+    {
+      bossId: 1,
+      name: 'Pirat Kai',
+      shortName: 'KAI',
+      image: kaiAsset,
+      fallback: kaiFallback,
+      location: 'WÖRTERBUCHT',
+      memoryStrength: 0.61,
+      forgetChance: 0.12,
+      thinkingDelay: 720,
+      introTitle: 'Er verschiebt, was du dir merkst.',
+      introCopy: 'Finde die passenden <b>Deutsch ↔ Englisch</b>-Paare. Kai tauscht im Kampf zwei verdeckte Karten sichtbar miteinander – ohne sie aufzudecken.',
+      ability: {
+        type: 'swap',
+        name: 'Decktausch',
+        description: 'Alle drei deiner Versuche tauscht Kai zwei verdeckte Karten sichtbar miteinander. Folge der Bewegung genau.',
+        everyPlayerAttempts: 3,
+      },
+    },
+    {
+      bossId: 2,
+      name: 'Kapitän Brax',
+      shortName: 'BRAX',
+      image: braxAsset,
+      fallback: bossFallback,
+      location: 'PULVERKAI',
+      memoryStrength: 0.67,
+      forgetChance: 0.10,
+      thinkingDelay: 690,
+      introTitle: 'Brax spielt mit Feuer.',
+      introCopy: 'Brax legt Bomben unter verdeckte Karten. Du siehst, welche Karte vermint wird. Öffnest du sie trotzdem, verlierst du einen Punkt und Brax bekommt einen.',
+      ability: {
+        type: 'bomb',
+        name: 'Pulverfalle',
+        description: 'Alle drei deiner Versuche vermint Brax eine sichtbare Kartenposition für zwei Versuche: Treffer = −1 Punkt für dich, +1 für Brax.',
+        everyPlayerAttempts: 3,
+      },
+    },
+    {
+      bossId: 3,
+      name: 'Blackfinn',
+      shortName: 'BLACKFINN',
+      image: blackfinnAsset,
+      fallback: bossFallback,
+      location: 'NEBELRIFF',
+      memoryStrength: 0.72,
+      forgetChance: 0.09,
+      thinkingDelay: 660,
+      introTitle: 'Blackfinn nimmt dir die Sicht.',
+      introCopy: 'Blackfinn ruft dichten Nebel über Teile des Decks. Die betroffenen Karten bleiben sichtbar an ihrem Platz, sind für deinen nächsten Versuch aber gesperrt.',
+      ability: {
+        type: 'fog',
+        name: 'Nebelwand',
+        description: 'Alle zwei deiner Versuche blockiert Blackfinn bis zu drei verdeckte Karten für deinen nächsten Versuch. Er selbst kann sie weiterhin nutzen.',
+        everyPlayerAttempts: 2,
+      },
+    },
+    {
+      bossId: 4,
+      name: 'Alt-Kapitän Roderick',
+      shortName: 'RODERICK',
+      image: roderickAsset,
+      fallback: bossFallback,
+      location: 'FLUCHANKER',
+      memoryStrength: 0.76,
+      forgetChance: 0.08,
+      thinkingDelay: 640,
+      introTitle: 'Roderick verflucht deine Erinnerung.',
+      introCopy: 'Roderick markiert eine Karte, die du bereits gesehen hast. Öffnest du sie erneut, verschiebt er sichtbar eine andere bekannte Karte und bringt dein Gedächtnis durcheinander.',
+      ability: {
+        type: 'memory-curse',
+        name: 'Verfluchte Erinnerung',
+        description: 'Alle drei deiner Versuche verflucht Roderick eine bereits bekannte verdeckte Karte. Öffnest du sie erneut, verschiebt er sichtbar eine andere bekannte Karte.',
+        everyPlayerAttempts: 3,
+      },
+    },
+    {
+      bossId: 5,
+      name: 'Piratenbaron Vargas',
+      shortName: 'VARGAS',
+      image: vargasAsset,
+      fallback: bossFallback,
+      location: 'TRIBUT-HAFEN',
+      memoryStrength: 0.80,
+      forgetChance: 0.07,
+      thinkingDelay: 620,
+      introTitle: 'Vargas verlangt seinen Anteil.',
+      introCopy: 'Wenn Vargas Tribut fordert, hast du zwei Versuche für ein Paar. Schaffst du es nicht, bekommt er automatisch einen Bonuspunkt.',
+      ability: {
+        type: 'tribute',
+        name: 'Tribut',
+        description: 'Alle drei deiner Versuche fordert Vargas Tribut: Finde innerhalb der nächsten zwei Versuche ein Paar oder Vargas erhält +1 Punkt.',
+        everyPlayerAttempts: 3,
+      },
+    },
+    {
+      bossId: 6,
+      name: 'Kapitän Ironhook',
+      shortName: 'IRONHOOK',
+      image: ironhookAsset,
+      fallback: bossFallback,
+      location: 'KETTENWERFT',
+      memoryStrength: 0.83,
+      forgetChance: 0.06,
+      thinkingDelay: 600,
+      introTitle: 'Ironhook legt das Deck in Ketten.',
+      introCopy: 'Ironhook fesselt zwei verdeckte Karten. Du kannst sie für zwei Versuche nicht wählen – er selbst kann sie weiterhin erreichen.',
+      ability: {
+        type: 'chains',
+        name: 'Karten fesseln',
+        description: 'Alle drei deiner Versuche fesselt Ironhook zwei verdeckte Karten für deine nächsten zwei Versuche. Die Ketten bleiben klar sichtbar.',
+        everyPlayerAttempts: 3,
+      },
+    },
   ],
 };
 ---
@@ -76,14 +184,97 @@ const bossConfig = {
 </head>
 <body style={`--pp-harbor:url("${harborAsset}")`}>
   <div class="app" id="app">
-    <header class="topbar"><button class="round" id="helpBtn" aria-label="Spielregeln">?</button><div class="logo"><b>PIRATE PAIRS</b><small>TULA’S ISLAND · MEMORY DUEL</small></div><button class="round" id="restartBtn" aria-label="Neu starten">↻</button></header>
-    <section class="duel" aria-label="Duellstand"><div class="fighter"><div class="portrait tula-portrait"><img id="tulaDuelSprite" class="character-sprite tula-sprite" src={tulaNeutral} alt="Tula" data-neutral={tulaNeutral} data-happy={tulaHappy} data-surprised={tulaSurprised} data-celebrating={tulaCelebrating} data-fallback={tulaFallback} decoding="async" /></div><div class="fighter-copy"><small>DU</small><b>TULA</b><div class="score"><strong id="playerScore">0</strong><span>PUNKTE</span></div></div></div><div class="turn"><small>AM ZUG</small><b id="turnPill">DU BIST DRAN</b></div><div class="fighter enemy"><div class="fighter-copy"><small>GEGNER</small><b id="bossName">PIRAT KAI</b><div class="score"><strong id="aiScore">0</strong><span>PUNKTE</span></div></div><div class="portrait kai-portrait"><img id="bossDuelSprite" class="character-sprite kai-sprite" src={kaiAsset} data-fallback={kaiFallback} alt="Pirat Kai" decoding="async" /></div></div></section>
-    <main class="arena"><div class="arena-head"><div class="level-tag" id="levelTag"><span>☠</span> LEVEL 1 · WÖRTERBUCHT</div><div class="progress">PAARE GEFUNDEN <b id="progress">0 / 8</b></div></div><div class="boss-ability-banner" id="bossAbilityBanner" aria-live="assertive" aria-atomic="true"><b id="bossAbilityTitle">BOSS-TRICK</b><span id="bossAbilityCopy"></span></div><div class="grid" id="grid" aria-label="Memory Spielfeld"></div><section class="skillbar"><div class="skill-copy"><small>TULAS FÄHIGKEIT</small><b>🐚 Muschelblick</b><span>Zeigt dir kurz zwei verdeckte Karten.</span></div><button class="skill" id="peekBtn">1× EINSETZEN</button></section></main>
+    <header class="topbar">
+      <button class="round" id="helpBtn" aria-label="Spielregeln">?</button>
+      <div class="logo"><b>PIRATE PAIRS</b><small>TULA’S ISLAND · MEMORY DUEL</small></div>
+      <button class="round" id="restartBtn" aria-label="Neu starten">↻</button>
+    </header>
+
+    <section class="duel" aria-label="Duellstand">
+      <div class="fighter">
+        <div class="portrait tula-portrait">
+          <img id="tulaDuelSprite" class="character-sprite tula-sprite" src={tulaNeutral} alt="Tula"
+            data-neutral={tulaNeutral} data-happy={tulaHappy} data-surprised={tulaSurprised}
+            data-celebrating={tulaCelebrating} data-fallback={tulaFallback} decoding="async" />
+        </div>
+        <div class="fighter-copy"><small>DU</small><b>TULA</b><div class="score"><strong id="playerScore">0</strong><span>PUNKTE</span></div></div>
+      </div>
+      <div class="turn"><small>AM ZUG</small><b id="turnPill">DU BIST DRAN</b></div>
+      <div class="fighter enemy">
+        <div class="fighter-copy"><small>GEGNER</small><b id="bossName">PIRAT KAI</b><div class="score"><strong id="aiScore">0</strong><span>PUNKTE</span></div></div>
+        <div class="portrait kai-portrait"><img id="bossDuelSprite" class="character-sprite kai-sprite" src={kaiAsset} data-fallback={kaiFallback} alt="Pirat Kai" decoding="async" /></div>
+      </div>
+    </section>
+
+    <main class="arena">
+      <div class="arena-head">
+        <div class="level-tag" id="levelTag"><span>☠</span> LEVEL 1 · WÖRTERBUCHT</div>
+        <div class="progress">PAARE GEFUNDEN <b id="progress">0 / 8</b></div>
+      </div>
+      <div class="boss-ability-banner" id="bossAbilityBanner" aria-live="assertive" aria-atomic="true">
+        <b id="bossAbilityTitle">BOSS-TRICK</b>
+        <span id="bossAbilityCopy"></span>
+      </div>
+      <div class="grid" id="grid" aria-label="Memory Spielfeld"></div>
+      <section class="skillbar">
+        <div class="skill-copy"><small>TULAS FÄHIGKEIT</small><b>🐚 Muschelblick</b><span>Zeigt dir kurz zwei verdeckte Karten.</span></div>
+        <button class="skill" id="peekBtn">1× EINSETZEN</button>
+      </section>
+    </main>
   </div>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <section class="overlay" id="intro"><div class="modal"><div class="mini-logo">PIRATE PAIRS<small>TULA’S ISLAND</small></div><div class="versus"><img class="tula intro-tula" src={tulaNeutral} data-fallback={tulaFallback} alt="Tula" /><span class="vs">VS</span><img id="introBossSprite" class="kai" src={kaiAsset} data-fallback={kaiFallback} alt="Pirat Kai" /></div><span class="boss-tag" id="introBossTag">☠ LEVEL 1 · PIRAT KAI</span><h1 id="introTitle">Er verschiebt, was du dir merkst.</h1><p id="introCopy">Finde die passenden <b>Deutsch ↔ Englisch</b>-Paare und besiege Pirat Kai.</p><div class="boss-power"><small>BOSS-TRICK</small><b id="bossPowerName">Decktausch</b><span id="bossPowerCopy">Kai tauscht verdeckte Karten sichtbar miteinander.</span></div><div class="rules"><div class="rule"><b>1. MERKEN</b>Karten aufdecken</div><div class="rule"><b>2. LERNEN</b>Übersetzung finden</div><div class="rule"><b>3. DUELLIEREN</b>Mehr Punkte sammeln</div></div><button class="cta" id="startBtn">⚔ MEMORY-DUELL STARTEN</button><span class="modal-note" id="introModalNote">DE → EN · 8 LERNPAARE · BOSS 1</span></div></section>
-  <section class="overlay hidden" id="result"><div class="modal"><div class="mini-logo">PIRATE PAIRS<small>DUELL BEENDET</small></div><div class="versus"><img id="resultTulaSprite" class="tula result-tula" src={tulaNeutral} alt="Tula" data-neutral={tulaNeutral} data-happy={tulaHappy} data-surprised={tulaSurprised} data-celebrating={tulaCelebrating} data-fallback={tulaFallback} /><span class="vs">VS</span><img id="resultBossSprite" class="kai" src={kaiAsset} data-fallback={kaiFallback} alt="Pirat Kai" /></div><span class="boss-tag" id="resultTag">LEVEL 1</span><h2 id="resultTitle">Du hast gewonnen!</h2><p id="resultCopy">Pirat Kai muss die Wörterbucht räumen.</p><div class="result-stats"><div class="result-stat"><b id="resultPlayer">0</b><small>DEINE PUNKTE</small></div><div class="result-stat"><b id="resultShells">+0</b><small>MUSCHELN</small></div><div class="result-stat"><b id="resultXp">+0</b><small>XP</small></div></div><button class="cta" id="againBtn">↻ NOCH EIN DUELL</button><span class="modal-note" id="resultModalNote">NOCH EIN DUELL GEGEN PIRAT KAI</span></div></section>
-  <section class="help hidden" id="help"><div class="help-card"><h3>So funktioniert Pirate Pairs</h3><p>Du deckst zwei Karten auf. Nur eine deutsche Karte und ihre englische Übersetzung bilden ein Paar. Ein gefundenes Paar bringt einen Punkt.</p><p>Jeder Boss hat einen eigenen Trick. Die Fähigkeit wird sichtbar angekündigt, damit du reagieren und taktisch spielen kannst. Bomben-, Tribut- und spätere Bonusmechaniken können den Punktestand zusätzlich verändern.</p><p><b>Muschelblick:</b> Einmal pro Runde darf Tula zwei zufällige verfügbare Karten kurz aufdecken.</p><button id="closeHelp">VERSTANDEN</button></div></section>
-  <script id="game-data" type="application/json" set:html={JSON.stringify(gameConfig)}></script><script id="boss-data" type="application/json" set:html={JSON.stringify(bossConfig)}></script><script src={scriptAsset} defer></script><script src={`${base}pirate-pairs-fx-v2.js`} defer></script>
+
+  <section class="overlay" id="intro">
+    <div class="modal">
+      <div class="mini-logo">PIRATE PAIRS<small>TULA’S ISLAND</small></div>
+      <div class="versus">
+        <img class="tula intro-tula" src={tulaNeutral} data-fallback={tulaFallback} alt="Tula" />
+        <span class="vs">VS</span>
+        <img id="introBossSprite" class="kai" src={kaiAsset} data-fallback={kaiFallback} alt="Pirat Kai" />
+      </div>
+      <span class="boss-tag" id="introBossTag">☠ LEVEL 1 · PIRAT KAI</span>
+      <h1 id="introTitle">Er verschiebt, was du dir merkst.</h1>
+      <p id="introCopy">Finde die passenden <b>Deutsch ↔ Englisch</b>-Paare und besiege Pirat Kai.</p>
+      <div class="boss-power"><small>BOSS-TRICK</small><b id="bossPowerName">Decktausch</b><span id="bossPowerCopy">Kai tauscht verdeckte Karten sichtbar miteinander.</span></div>
+      <div class="rules"><div class="rule"><b>1. MERKEN</b>Karten aufdecken</div><div class="rule"><b>2. LERNEN</b>Übersetzung finden</div><div class="rule"><b>3. DUELLIEREN</b>Mehr Punkte sammeln</div></div>
+      <button class="cta" id="startBtn">⚔ MEMORY-DUELL STARTEN</button>
+      <span class="modal-note" id="introModalNote">DE → EN · 8 LERNPAARE · BOSS 1</span>
+    </div>
+  </section>
+
+  <section class="overlay hidden" id="result">
+    <div class="modal">
+      <div class="mini-logo">PIRATE PAIRS<small>DUELL BEENDET</small></div>
+      <div class="versus">
+        <img id="resultTulaSprite" class="tula result-tula" src={tulaNeutral} alt="Tula"
+          data-neutral={tulaNeutral} data-happy={tulaHappy} data-surprised={tulaSurprised}
+          data-celebrating={tulaCelebrating} data-fallback={tulaFallback} />
+        <span class="vs">VS</span>
+        <img id="resultBossSprite" class="kai" src={kaiAsset} data-fallback={kaiFallback} alt="Pirat Kai" />
+      </div>
+      <span class="boss-tag" id="resultTag">LEVEL 1</span>
+      <h2 id="resultTitle">Du hast gewonnen!</h2>
+      <p id="resultCopy">Pirat Kai muss die Wörterbucht räumen.</p>
+      <div class="result-stats"><div class="result-stat"><b id="resultPlayer">0</b><small>DEINE PUNKTE</small></div><div class="result-stat"><b id="resultShells">+0</b><small>MUSCHELN</small></div><div class="result-stat"><b id="resultXp">+0</b><small>XP</small></div></div>
+      <button class="cta" id="againBtn">↻ NOCH EIN DUELL</button>
+      <span class="modal-note" id="resultModalNote">NOCH EIN DUELL GEGEN PIRAT KAI</span>
+    </div>
+  </section>
+
+  <section class="help hidden" id="help">
+    <div class="help-card">
+      <h3>So funktioniert Pirate Pairs</h3>
+      <p>Du deckst zwei Karten auf. Nur eine deutsche Karte und ihre englische Übersetzung bilden ein Paar. Ein gefundenes Paar bringt einen Punkt.</p>
+      <p>Jeder Boss hat einen eigenen Trick. Die Fähigkeit wird sichtbar angekündigt, damit du reagieren und taktisch spielen kannst. Bomben-, Tribut- und spätere Bonusmechaniken können den Punktestand zusätzlich verändern.</p>
+      <p><b>Muschelblick:</b> Einmal pro Runde darf Tula zwei zufällige verfügbare Karten kurz aufdecken.</p>
+      <button id="closeHelp">VERSTANDEN</button>
+    </div>
+  </section>
+
+  <script id="game-data" type="application/json" set:html={JSON.stringify(gameConfig)}></script>
+  <script id="boss-data" type="application/json" set:html={JSON.stringify(bossConfig)}></script>
+  <script src={scriptAsset} defer></script>
+  <script src={`${base}pirate-pairs-fx-v2.js`} defer></script>
 </body>
 </html>
