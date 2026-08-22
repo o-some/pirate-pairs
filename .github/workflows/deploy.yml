@@ -46,6 +46,31 @@ jobs:
         with:
           path: ./dist
 
+  live-b08-input-smoke:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install
+      - name: Install Chromium and WebKit
+        run: npx playwright install --with-deps chromium webkit
+      - name: Wait for B08 production asset
+        run: |
+          for i in {1..60}; do
+            if curl -fsS "https://o-some.github.io/pirate-pairs/pirate-pairs-b07-prep.js?run=${GITHUB_RUN_ID}-${i}" | grep -q "dataset.inputSafety='b08'"; then exit 0; fi
+            sleep 5
+          done
+          echo "B08 production asset did not appear in time"
+          exit 1
+      - name: Verify live iPhone input paths
+        run: npm run test:live-b08
+
   deploy:
     if: github.event_name != 'pull_request'
     environment:
