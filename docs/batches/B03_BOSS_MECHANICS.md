@@ -16,11 +16,12 @@ Mechanic: Kanonenbeschuss.
 
 ## Boss 8 — Kartenmeister Corvin
 Mechanic: Deck-Manipulation.
-- Every three completed player attempts, Corvin looks for a fully hidden/free row or column of four cards.
-- One eligible row or column is visibly shifted cyclically by one position.
+- Every three completed player attempts, Corvin chooses a real board row or column that still contains at least two available hidden cards.
+- Already secured/matched cards stay anchored in place.
+- Only the remaining available hidden cards in that geometric row/column rotate cyclically through the free positions.
 - Cards stay face-down during the move.
 - Boss AI memory is re-indexed after the move.
-- If no complete eligible line exists, no destructive fallback is used.
+- This keeps Corvin's mechanic useful later in the duel without moving already secured cards.
 
 ## Boss 9 — Schattenfürst Azrak
 Mechanic: Schattenzug.
@@ -29,6 +30,11 @@ Mechanic: Schattenzug.
 - After the player reveals the first card of the attempt, the shadow visibly moves to another available hidden card.
 - The shadow clears after that completed attempt.
 - Muschelblick excludes the currently shadowed card.
+
+## Async / restart safety
+- B03 uses a game-generation token.
+- Restarting or starting a new boss invalidates in-flight async boss effects.
+- Corvin shifts, Azrak shadow moves, AI turns, selection resolution and Muschelblick cannot mutate a newly restarted board from stale continuations.
 
 ## Safety constraints
 - B02 engine remains in the repository unchanged as rollback predecessor.

@@ -128,8 +128,25 @@
   async function castCannon(){const opts=available().filter(i=>!fogged.has(i)&&!chained.has(i)&&i!==shadowIndex);if(opts.length<2)return false;clearCannon();cannonTargets=new Set(shuffle(opts).slice(0,2));cannonTouched=false;cannonExpiresAt=playerAttempts+1;cannonTargets.forEach(i=>cardEl(i)?.classList.add('cannon-target'));await banner('THORNE ERÖFFNET DAS FEUER!','Zwei Karten liegen im Fadenkreuz. Nutzt du eine davon und verfehlst das Paar, erhält Thorne +1 Punkt.','cannon',1050);return true;}
   async function resolveCannon(match){if(!cannonTargets.size)return;if(match){clearCannon();showToast('✓ Kanonenbeschuss abgewehrt.','good');return;}if(cannonTouched){const hit=[...cannonTargets].find(i=>selected.includes(i));if(hit!=null)cardEl(hit)?.classList.add('cannon-hit');scores.ai++;updateHud();await banner('KANONENTREFFER!','Du hast eine Zielkarte benutzt, aber kein Paar gefunden. Thorne erhält +1 Punkt.','cannon hit',720);}clearCannon();}
 
-  function lineCandidates(){const openSet=new Set(available());const lines=[];for(let r=0;r<4;r++)lines.push([r*4,r*4+1,r*4+2,r*4+3]);for(let c=0;c<4;c++)lines.push([c,c+4,c+8,c+12]);return lines.filter(line=>line.every(i=>openSet.has(i)&&!fogged.has(i)&&!chained.has(i)&&i!==shadowIndex));}
-  async function shiftLine(){const generation=gameGeneration;const lines=lineCandidates();if(!lines.length){await banner('CORVIN PRÜFT DAS DECK','Keine vollständige verdeckte Reihe oder Spalte ist gerade frei.','shift',620);return false;}const line=shuffle(lines)[0];const els=line.map(cardEl);const rects=els.map(el=>el?.getBoundingClientRect());if(els.some(el=>!el)||rects.some(r=>!r))return false;await banner('CORVIN ORDNET DAS DECK NEU!','Beobachte die vier verdeckten Karten: Eine ganze Reihe oder Spalte rückt um eine Position.','shift',760);if(generation!==gameGeneration)return false;const animations=els.map((el,k)=>{el.classList.add('corvin-shifting');const dest=rects[(k+1)%4],src=rects[k],dx=dest.left-src.left,dy=dest.top-src.top;return el.querySelector('.back')?.animate([{transform:'translate(0,0)'},{transform:`translate(${dx}px,${dy}px)`}],{duration:760,easing:'cubic-bezier(.22,.75,.18,1)',fill:'forwards'});});await Promise.all(animations.map(a=>a?.finished?.catch(()=>{})));if(generation!==gameGeneration)return false;const before=line.map(i=>cards[i]);line.forEach((idx,k)=>{cards[line[(k+1)%4]]=before[k];});reindexMemory();render();await banner('REIHE VERSCHOBEN','Die vier Karten liegen jetzt an ihren neuen Positionen.','shift done',520);return generation===gameGeneration;}
+  function lineCandidates(){
+    const free=new Set(available().filter(i=>!fogged.has(i)&&!chained.has(i)&&i!==shadowIndex));
+    const geometric=[];
+    for(let r=0;r<4;r++)geometric.push([r*4,r*4+1,r*4+2,r*4+3]);
+    for(let c=0;c<4;c++)geometric.push([c,c+4,c+8,c+12]);
+    return geometric.map(line=>line.filter(i=>free.has(i))).filter(line=>line.length>=2);
+  }
+  async function shiftLine(){
+    const generation=gameGeneration,lines=lineCandidates();
+    if(!lines.length){await banner('CORVIN PRÜFT DAS DECK','Keine Reihe oder Spalte besitzt noch mindestens zwei freie verdeckte Karten.','shift',620);return false;}
+    const line=shuffle(lines)[0],els=line.map(cardEl),rects=els.map(el=>el?.getBoundingClientRect());
+    if(els.some(el=>!el)||rects.some(r=>!r))return false;
+    await banner('CORVIN ORDNET DAS DECK NEU!',`Beobachte die ${line.length} freien Karten dieser Reihe oder Spalte. Eroberte Karten bleiben als Anker liegen.`,'shift',760);
+    if(generation!==gameGeneration)return false;
+    const animations=els.map((el,k)=>{el.classList.add('corvin-shifting');const dest=rects[(k+1)%line.length],src=rects[k],dx=dest.left-src.left,dy=dest.top-src.top;return el.querySelector('.back')?.animate([{transform:'translate(0,0)'},{transform:`translate(${dx}px,${dy}px)`}],{duration:760,easing:'cubic-bezier(.22,.75,.18,1)',fill:'forwards'});});
+    await Promise.all(animations.map(a=>a?.finished?.catch(()=>{})));if(generation!==gameGeneration)return false;
+    const before=line.map(i=>cards[i]);line.forEach((idx,k)=>{cards[line[(k+1)%line.length]]=before[k];});
+    reindexMemory();render();await banner('LINIE VERSCHOBEN','Die freien Karten liegen jetzt an ihren neuen Positionen.','shift done',520);return generation===gameGeneration;
+  }
 
   function clearShadow(announce=false){if(shadowIndex==null)return;const el=cardEl(shadowIndex);el?.classList.remove('shadowed','shadow-denied','shadow-leaving','shadow-arriving');if(el&&!cards[shadowIndex]?.matched&&!fogged.has(shadowIndex)&&!chained.has(shadowIndex))el.removeAttribute('aria-disabled');shadowIndex=null;shadowExpiresAt=null;if(announce)showToast('Azraks Schatten löst sich auf.','good');}
   async function castShadow(){const generation=gameGeneration;const opts=available().filter(i=>!fogged.has(i)&&!chained.has(i));if(!opts.length)return false;clearShadow();shadowIndex=shuffle(opts)[0];shadowExpiresAt=playerAttempts+1;const el=cardEl(shadowIndex);el?.classList.add('shadow-arriving');await banner('AZRAK RUFT DEN SCHATTEN!','Eine Karte verschwindet im Schatten und ist für dich blockiert. Nach deiner ersten Karte wandert der Schatten weiter.','shadow',980);if(generation!==gameGeneration)return false;el?.classList.remove('shadow-arriving');el?.classList.add('shadowed');el?.setAttribute('aria-disabled','true');return true;}
