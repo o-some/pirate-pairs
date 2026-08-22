@@ -214,7 +214,21 @@
     const generation=gameGeneration,[a,b]=selected,match=cards[a].pairId===cards[b].pairId&&cards[a].lang!==cards[b].lang;await sleep(actor==='player'?650:520);if(generation!==gameGeneration)return;
     if(actor==='player'&&cannonTargets.size)await resolveCannon(match);if(generation!==gameGeneration)return;
     if(match){markMatched([a,b],actor);matchedPairs[actor]++;scores[actor]++;if(actor==='player')satisfyTribute();updateHud();const learned=pairText([a,b]);showToast(actor==='player'?`✓ Stark! ${learned}`:`☠ ${boss().name} schnappt sich: ${learned}`,actor==='player'?'good':'bad');selected=[];if(actor==='player')playerAttempts++;await cleanExpired();if(generation!==gameGeneration)return;if(checkGameEnd())return;if(actor==='ai'){lock=false;setTurnUi();await sleep(520);if(generation===gameGeneration)aiTurn();}else await enterPlayerTurn();}
-    else{showToast(actor==='player'?`Kein Paar – ${boss().name} ist dran.`:`${boss().name} liegt daneben – dein Zug!`,actor==='player'?'bad':'good');await sleep(actor==='player'?550:430);if(generation!==gameGeneration)return;hide(a);hide(b);selected=[];if(actor==='player')playerAttempts++;await cleanExpired();if(generation!==gameGeneration)return;if(actor==='player'){turn='ai';lock=true;setTurnUi();await sleep(Number(boss().thinkingDelay??720));if(generation===gameGeneration)aiTurn();}else await enterPlayerTurn();}
+    else{
+      showToast(actor==='player'?`Kein Paar – ${boss().name} ist dran.`:`${boss().name} liegt daneben – dein Zug!`,actor==='player'?'bad':'good');
+      await sleep(actor==='player'?550:430);if(generation!==gameGeneration)return;
+      hide(a);hide(b);selected=[];
+      if(actor==='player')playerAttempts++;
+      await cleanExpired();if(generation!==gameGeneration)return;
+      if(actor==='player'){
+        turn='ai';lock=true;setTurnUi();
+        if(isRoyalChaos()){
+          await maybeAbility();if(generation!==gameGeneration)return;
+          lock=true;setTurnUi();
+        }
+        await sleep(Number(boss().thinkingDelay??720));if(generation===gameGeneration)aiTurn();
+      }else await enterPlayerTurn();
+    }
   }
 
   function cleanMemory(){const chance=Number(boss().forgetChance??.12);for(const[id,d]of aiMemory){if(cards[d.index]?.matched)aiMemory.delete(id);else if(Math.random()<chance)aiMemory.delete(id);}}
