@@ -122,7 +122,7 @@
       overlay.setAttribute('aria-hidden','true');
       overlay.inert=true;
       setBackgroundInert(false);
-      window.setTimeout(()=>returnFocus?.focus?.({preventScroll:true}),80);
+      window.setTimeout(()=>returnFocus?.focus?.({preventScroll:true}),180);
     };
     const openFrom=trigger=>{
       returnFocus=trigger||document.activeElement;
@@ -130,7 +130,7 @@
       overlay.inert=false;
       overlay.removeAttribute('aria-hidden');
       overlay.classList.remove('hidden');
-      window.requestAnimationFrame(()=>overlay.querySelector('.boss-preview-close-main')?.focus({preventScroll:true}));
+      window.setTimeout(()=>overlay.querySelector('.boss-preview-close-main')?.focus({preventScroll:true}),180);
     };
     overlay.querySelector('.boss-preview-x')?.addEventListener('click',close);
     overlay.querySelector('.boss-preview-close-main')?.addEventListener('click',close);
