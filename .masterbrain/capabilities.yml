@@ -1,0 +1,23 @@
+capabilities_version: "1.0"
+updated_at: "2026-08-23"
+project: "Pirate Pairs"
+repository: "o-some/pirate-pairs"
+
+repository_access:
+  preferred_route: "github_connector"
+  read_status: "PROVEN_READ"
+  write_status: "PROVEN_WRITE"
+  evidence:
+    - "repository lookup succeeded through the authorized GitHub connector"
+    - "branch creation, file writes, pull request creation and merge succeeded through the connector"
+  fallback_route: "local_git_if_available"
+  fallback_notes:
+    - "A local shell/network/DNS failure does not invalidate the GitHub connector route."
+    - "Re-verify the connector before reporting NO ACCESS or asking the user for manual repository work."
+
+continuity:
+  on_new_chat:
+    - "load current MasterBrain/BOOTSTRAP"
+    - "prefer github_connector for repository reads/writes"
+    - "verify current main SHA before mutation"
+  secrets_stored: false
