@@ -10,10 +10,13 @@ for(const type of ['fog','memory-curse','tribute','chains','cannon','line-shift'
 assert.match(core,/const cadenceForAbility = a => bossId\(\)===1/,'Kai cadence override missing');
 assert.match(core,/async function ensurePersistentAbility\(\)/,'persistent ability owner missing');
 assert.match(core,/bombExpiresAt=persistent\?null/,'Brax trap must not expire by attempt counter');
+assert.match(core,/classList\.remove\('bomb-armed','mystery-covered'\)/,'consumed Brax mystery must reveal normally');
+assert.match(core,/isPersistentBrax\(\)&&bombIndex==null[\s\S]*await ensurePersistentAbility\(\)/,'Brax must immediately re-arm another mystery card');
 assert.match(core,/shadowExpiresAt=persistent\?null/,'Azrak shadow must not expire by attempt counter');
 assert.match(core,/if\(helpOpen\|\|lock\|\|turn!=='player'/,'card input must stop while help is open');
 assert.match(core,/async function usePeek\(\)\{if\(helpOpen\|\|peekUsed/,'peek must stop while help is open');
 assert.match(core,/await waitForHelpClosed\(\)/,'gameplay transitions must wait for help to close');
+assert.ok((core.match(/await waitForHelpClosed\(\)/g)||[]).length>=8,'help-safe lifecycle must guard all major delayed boss transitions');
 assert.match(core,/helpBtn\?\.addEventListener\('click',openHelpPanel\)/,'help open handler missing');
 assert.match(core,/closeHelp\?\.addEventListener\('click',closeHelpPanel\)/,'help close handler missing');
 assert.match(core,/startBtn\?\.addEventListener\('click',async\(\)=>\{intro\.classList\.add\('hidden'\);await enterPlayerTurn\(\)/,'initial persistent boss state must arm immediately after intro');
