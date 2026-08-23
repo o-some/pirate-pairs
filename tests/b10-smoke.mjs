@@ -78,14 +78,19 @@ async function runFull(engine,label){
   await chooseBoss(page,2,'Kapitän Brax');
   await startFight(page);
   await page.locator('.card').first().evaluate(el=>el.classList.add('bomb-armed'));
-  const barrel=await page.locator('.card').first().locator('.boss-marker').evaluate(el=>({
-    image:getComputedStyle(el).backgroundImage,
-    left:getComputedStyle(el).left,
-    top:getComputedStyle(el).top,
-  }));
+  const barrel=await page.locator('.card').first().locator('.boss-marker').evaluate(el=>{
+    const marker=el.getBoundingClientRect();
+    const card=el.closest('.card')?.getBoundingClientRect();
+    if(!card)return {image:getComputedStyle(el).backgroundImage,dx:999,dy:999};
+    return {
+      image:getComputedStyle(el).backgroundImage,
+      dx:Math.abs((marker.left+marker.width/2)-(card.left+card.width/2)),
+      dy:Math.abs((marker.top+marker.height/2)-(card.top+card.height/2)),
+    };
+  });
   assert.match(barrel.image,/powder-barrel\.svg/);
-  assert.equal(barrel.left,'50%');
-  assert.equal(barrel.top,'50%');
+  assert.ok(barrel.dx<=1.5,`powder barrel is ${barrel.dx}px off horizontal center`);
+  assert.ok(barrel.dy<=1.5,`powder barrel is ${barrel.dy}px off vertical center`);
   await page.locator('.card').first().evaluate(el=>el.classList.remove('bomb-armed'));
 
   await chooseBoss(page,10,'Piratenkönig Varkos');
