@@ -7,7 +7,7 @@ const core = read('public/pirate-pairs-b04.js');
 const css = read('public/pirate-pairs-b10-boss-select.css');
 
 assert.match(core,/new URLSearchParams\(location\.search\)\.get\('boss'\)/,'B04 must remain the canonical boss query owner');
-assert.match(core,/requestedBoss>=1&&requestedBoss<=BOSSES\.length/,'B04 must validate direct boss IDs');
+assert.match(core,/requestedBoss\s*>=\s*1\s*&&\s*requestedBoss\s*<=\s*BOSSES\.length/,'B04 must validate direct boss IDs');
 
 assert.match(guide,/BOSS-AUSWAHL 1–10/,'roadmap must be presented as a free boss selector');
 assert.match(guide,/id="bossPreviewPlay"/,'boss preview needs a dedicated play action');
