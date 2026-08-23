@@ -1,0 +1,12 @@
+/* Pirate Pairs — boss ability lifecycle visuals */
+html body .card.mystery-covered .back::after{
+  content:"?";position:absolute;z-index:15;right:7px;top:6px;width:22px;height:22px;display:grid;place-items:center;
+  border:1px solid rgba(255,225,139,.9);border-radius:50%;background:linear-gradient(180deg,#8b3c27,#4d211d);
+  color:#fff0ad;font:1000 15px/1 Georgia,serif;box-shadow:0 3px 8px rgba(0,0,0,.42),0 0 10px rgba(235,143,72,.25);pointer-events:none;
+}
+html body .card.mystery-covered.peek .front .word,html body .card.mystery-covered.flipped .front .word{opacity:0!important;text-shadow:none!important}
+html body .card.mystery-covered.peek .front::after,html body .card.mystery-covered.flipped .front::after{
+  content:"?";position:absolute;inset:0;display:grid;place-items:center;color:#ffe6a1;font:1000 clamp(28px,8vw,52px)/1 Georgia,serif;
+  background:radial-gradient(circle at 50% 46%,rgba(94,37,29,.9),rgba(10,33,45,.92) 68%);text-shadow:0 3px 7px rgba(0,0,0,.55);pointer-events:none;
+}
+.help:not(.hidden){touch-action:none}

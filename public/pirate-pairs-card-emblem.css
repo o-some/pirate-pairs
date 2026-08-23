@@ -1,4 +1,5 @@
 @import url('./pirate-pairs-art-registry.css');
+@import url('./pirate-pairs-ability-lifecycle.css');
 
 /* Pirate Pairs — stable cross-platform card emblem
    Replaces the platform-rendered Unicode glyph with a local SVG asset.

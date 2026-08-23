@@ -23,11 +23,16 @@
   let bombIndex=null, bombExpiresAt=null, fogged=new Set(), fogExpiresAt=null, cursedCardId=null, tributeActive=false, tributeDeadline=null, chained=new Set(), chainExpiresAt=null;
   let cannonTargets=new Set(), cannonTouched=false, cannonExpiresAt=null;
   let shadowIndex=null, shadowExpiresAt=null;
+  let helpOpen=false, helpWaiters=[];
   let varkosPhase=1, varkosPhaseAction=0;
 
   const boss = () => BOSSES[bossIndex] || BOSSES[0];
   const ability = () => boss().ability || null;
+  const bossId = () => Number(boss().bossId || bossIndex + 1);
   const isRoyalChaos = () => ability()?.type === 'royal-chaos';
+  const isPersistentBrax = () => bossId()===2 && ability()?.type==='bomb' && ability()?.persistent===true;
+  const isPersistentAzrak = () => bossId()===9 && ability()?.type==='shadow' && ability()?.persistent===true;
+  const cadenceForAbility = a => bossId()===1 && a?.type==='swap' ? 1 : Math.max(1,Number(a?.everyPlayerAttempts||3));
   const bossLabel = () => boss().shortName || boss().name.split(' ').pop().toUpperCase();
   const cardEl = i => grid.querySelector(`.card[data-index="${i}"]`);
   const isOpen = i => { const el=cardEl(i); return !!el && (el.classList.contains('flipped')||el.classList.contains('matched')||el.classList.contains('peek')); };
@@ -58,7 +63,7 @@
   function makeDeck(){ const d=[]; PAIRS.forEach((p,pairId)=>{ d.push({id:`${p.id}-source`,pairId,lang:GAME.sourceLabel||'DE',word:p.source,matched:false,owner:null}); d.push({id:`${p.id}-target`,pairId,lang:GAME.targetLabel||'EN',word:p.target,matched:false,owner:null}); }); return shuffle(d); }
   function decorate(btn,c,i){
     if(c.matched){ btn.classList.add('matched',c.owner==='ai'?'kai':'tula'); btn.setAttribute('aria-disabled','true'); const lab=btn.querySelector('.matched-by'); if(lab)lab.textContent=c.owner==='player'?'✓ TULA':`☠ ${bossLabel()}`; }
-    if(i===bombIndex&&!c.matched)btn.classList.add('bomb-armed');
+    if(i===bombIndex&&!c.matched){btn.classList.add('bomb-armed');if(isPersistentBrax())btn.classList.add('mystery-covered');}
     if(fogged.has(i)&&!c.matched){btn.classList.add('fogged');btn.setAttribute('aria-disabled','true');}
     if(c.id===cursedCardId&&!c.matched)btn.classList.add('cursed-memory');
     if(chained.has(i)&&!c.matched){btn.classList.add('chained');btn.setAttribute('aria-disabled','true');}
@@ -81,11 +86,12 @@
   function resetStates(){
     playerAttempts=0; lastAbilityAttempt=-1; bombIndex=null; bombExpiresAt=null; fogged=new Set(); fogExpiresAt=null; cursedCardId=null; tributeActive=false; tributeDeadline=null; chained=new Set(); chainExpiresAt=null; playerSeen=new Set();
     cannonTargets=new Set(); cannonTouched=false; cannonExpiresAt=null; shadowIndex=null; shadowExpiresAt=null;varkosPhase=1;varkosPhaseAction=0;
+    helpOpen=false;helpWaiters.splice(0).forEach(resolve=>resolve());help?.classList.add('hidden');
     document.body.classList.remove('tribute-active');delete document.body.dataset.varkosPhase;hideBanner();
   }
   function resetGame(showIntro=false){ gameGeneration++; cards=makeDeck();turn='player';selected=[];lock=showIntro;scores={player:0,ai:0};matchedPairs={player:0,ai:0};aiMemory=new Map();peekUsed=false;gameOver=false;lastOutcome='loss';resetStates();result.classList.add('hidden');peekBtn.disabled=false;peekBtn.textContent='1× EINSETZEN';applyBossUi();render();setTurnUi();showIntro?intro.classList.remove('hidden'):intro.classList.add('hidden'); }
   function updateHud(){playerScoreEl.textContent=String(scores.player);aiScoreEl.textContent=String(scores.ai);progressEl.textContent=`${matchedPairs.player+matchedPairs.ai} / ${PAIRS.length}`;}
-  function setTurnUi(){const player=turn==='player';turnPill.textContent=player?'DU BIST DRAN':`${bossLabel()} DENKT …`;turnPill.classList.toggle('ai',!player);peekBtn.disabled=peekUsed||!player||lock||selected.length>0||gameOver;}
+  function setTurnUi(){const player=turn==='player';turnPill.textContent=player?'DU BIST DRAN':`${bossLabel()} DENKT …`;turnPill.classList.toggle('ai',!player);peekBtn.disabled=peekUsed||!player||lock||helpOpen||selected.length>0||gameOver;}
   function reveal(i,actor='player'){const c=cards[i],el=cardEl(i);if(!c||!el)return;el.classList.add('flipped');el.setAttribute('aria-label',`${c.lang}: ${c.word}`);if(actor==='player')playerSeen.add(c.id);if(actor==='ai'||Math.random()<Number(boss().memoryStrength??.61))aiMemory.set(c.id,{pairId:c.pairId,index:i});}
   function hide(i){const el=cardEl(i);if(el&&!cards[i].matched){el.classList.remove('flipped');el.setAttribute('aria-label',`Verdeckte Memory-Karte ${i+1}`);}}
   function markMatched(indices,owner){
@@ -102,6 +108,9 @@
   function showBanner(title,copy,tone=''){if(!bossAbilityBanner)return;bossAbilityTitle.textContent=title;bossAbilityCopy.textContent=copy;bossAbilityBanner.className=`boss-ability-banner show ${tone}`.trim();}
   function hideBanner(){if(bossAbilityBanner)bossAbilityBanner.className='boss-ability-banner';}
   async function banner(title,copy,tone='',ms=900){showBanner(title,copy,tone);await sleep(ms);hideBanner();}
+  function waitForHelpClosed(){if(!helpOpen)return Promise.resolve();return new Promise(resolve=>helpWaiters.push(resolve));}
+  function openHelpPanel(){if(!help||helpOpen)return;helpOpen=true;help.classList.remove('hidden');setTurnUi();}
+  function closeHelpPanel(){if(!help)return;helpOpen=false;help.classList.add('hidden');const waiters=helpWaiters.splice(0);waiters.forEach(resolve=>resolve());render();setTurnUi();}
   function reindexMemory(){for(const[id,data]of aiMemory){const i=cards.findIndex(c=>c.id===id);if(i<0||cards[i]?.matched)aiMemory.delete(id);else data.index=i;}}
 
   async function animateSwap(a,b,tone='swap'){
@@ -115,7 +124,14 @@
   async function swapHiddenCards(){const royal=isRoyalChaos(),opts=available().filter(i=>!fogged.has(i)&&!chained.has(i));if(opts.length<2)return false;const[a,b]=shuffle(opts).slice(0,2);await banner(royal?'VARKOS VERSCHIEBT DAS DECK!':'KAI MISCHT DIE KARTEN!',royal?'Beobachte genau: Der Piratenkönig tauscht zwei verdeckte Karten sichtbar miteinander.':'Beobachte genau, welche zwei verdeckten Karten ihre Plätze tauschen.',royal?'varkos phase-1':'swap',650);const moved=await animateSwap(a,b);if(!moved)return false;await banner(royal?'KÖNIGLICHER TAUSCH BEENDET':'PLÄTZE GETAUSCHT','Die beiden Karten liegen jetzt an ihren neuen Positionen.',royal?'varkos phase-1 done':'swap done',560);return true;}
 
   function clearBomb(announce=false){if(bombIndex==null)return;cardEl(bombIndex)?.classList.remove('bomb-armed');bombIndex=null;bombExpiresAt=null;if(announce)showToast('Die Bombe ist ohne Treffer erloschen.','good');}
-  async function plantBomb(){const royal=isRoyalChaos(),opts=available().filter(i=>!fogged.has(i)&&!chained.has(i));if(!opts.length)return false;clearBomb();bombIndex=shuffle(opts)[0];bombExpiresAt=playerAttempts+(royal?1:2);const el=cardEl(bombIndex);el?.classList.add('bomb-targeting');await banner(royal?'VARKOS LEGT EINE KRONENBOMBE!':'BRAX LEGT EINE BOMBE!',royal?'Die markierte Karte ist für diesen Versuch vermint: Treffer = −1 für dich und +1 für Varkos.':'Merk dir die markierte Karte. Öffnest du sie: −1 für dich, +1 für Brax.',royal?'varkos phase-2 bomb':'bomb',1000);el?.classList.remove('bomb-targeting');el?.classList.add('bomb-armed');return true;}
+  async function plantBomb(){
+    const royal=isRoyalChaos(),persistent=isPersistentBrax(),opts=available().filter(i=>!fogged.has(i)&&!chained.has(i));
+    if(!opts.length)return false;
+    clearBomb();bombIndex=shuffle(opts)[0];bombExpiresAt=persistent?null:playerAttempts+(royal?1:2);
+    const el=cardEl(bombIndex);el?.classList.add('bomb-targeting');
+    await banner(royal?'VARKOS LEGT EINE KRONENBOMBE!':persistent?'BRAX VERDECKT EINE KARTE!':'BRAX LEGT EINE BOMBE!',royal?'Die markierte Karte ist für diesen Versuch vermint: Treffer = −1 für dich und +1 für Varkos.':persistent?'Eine Karte bleibt dauerhaft als ?-Pulverfalle markiert. Wird sie verbraucht, wählt Brax im nächsten Zug sofort eine neue.':'Merk dir die markierte Karte. Öffnest du sie: −1 für dich, +1 für Brax.',royal?'varkos phase-2 bomb':'bomb',1000);
+    el?.classList.remove('bomb-targeting');el?.classList.add('bomb-armed');if(persistent)el?.classList.add('mystery-covered');return true;
+  }
   async function triggerBomb(i){if(i!==bombIndex)return;const royal=isRoyalChaos(),el=cardEl(i);el?.classList.remove('bomb-armed');el?.classList.add('bomb-explode');bombIndex=null;bombExpiresAt=null;const lost=scores.player>0?1:0;if(lost)scores.player--;scores.ai++;updateHud();await banner(royal?'KRONENBOMBE EXPLODIERT!':'BOMBE EXPLODIERT!',lost?`Du verlierst 1 Punkt. ${royal?'Varkos':'Brax'} bekommt 1 Punkt.`:`Du hattest noch keinen Punkt – ${royal?'Varkos':'Brax'} bekommt trotzdem +1.`,royal?'varkos phase-2 explode':'bomb explode',650);el?.classList.remove('bomb-explode');}
 
   function clearFog(announce=false){if(!fogged.size)return;fogged.forEach(i=>{const el=cardEl(i);el?.classList.remove('fogged','fog-denied');if(el&&!cards[i]?.matched&&!chained.has(i)&&i!==shadowIndex)el.removeAttribute('aria-disabled');});fogged=new Set();fogExpiresAt=null;if(announce)showToast('🌫 Der Nebel lichtet sich.','good');}
@@ -158,7 +174,7 @@
   }
 
   function clearShadow(announce=false){if(shadowIndex==null)return;const el=cardEl(shadowIndex);el?.classList.remove('shadowed','shadow-denied','shadow-leaving','shadow-arriving');if(el&&!cards[shadowIndex]?.matched&&!fogged.has(shadowIndex)&&!chained.has(shadowIndex))el.removeAttribute('aria-disabled');shadowIndex=null;shadowExpiresAt=null;if(announce)showToast('Azraks Schatten löst sich auf.','good');}
-  async function castShadow(){const generation=gameGeneration;const opts=available().filter(i=>!fogged.has(i)&&!chained.has(i));if(!opts.length)return false;clearShadow();shadowIndex=shuffle(opts)[0];shadowExpiresAt=playerAttempts+1;const el=cardEl(shadowIndex);el?.classList.add('shadow-arriving');await banner('AZRAK RUFT DEN SCHATTEN!','Eine Karte verschwindet im Schatten und ist für dich blockiert. Nach deiner ersten Karte wandert der Schatten weiter.','shadow',980);if(generation!==gameGeneration)return false;el?.classList.remove('shadow-arriving');el?.classList.add('shadowed');el?.setAttribute('aria-disabled','true');return true;}
+  async function castShadow(){const generation=gameGeneration,persistent=isPersistentAzrak(),opts=available().filter(i=>!fogged.has(i)&&!chained.has(i));if(!opts.length)return false;clearShadow();shadowIndex=shuffle(opts)[0];shadowExpiresAt=persistent?null:playerAttempts+1;const el=cardEl(shadowIndex);el?.classList.add('shadow-arriving');await banner('AZRAK RUFT DEN SCHATTEN!',persistent?'Azrak hält dauerhaft genau eine Karte im Schatten. Nach deiner ersten Auswahl wandert der Schatten weiter.':'Eine Karte verschwindet im Schatten und ist für dich blockiert. Nach deiner ersten Karte wandert der Schatten weiter.','shadow',980);if(generation!==gameGeneration)return false;el?.classList.remove('shadow-arriving');el?.classList.add('shadowed');el?.setAttribute('aria-disabled','true');return true;}
   async function moveShadow(){if(shadowIndex==null)return;const generation=gameGeneration,old=shadowIndex;const opts=available().filter(i=>i!==old&&!selected.includes(i)&&!fogged.has(i)&&!chained.has(i));if(!opts.length)return;const next=shuffle(opts)[0],oldEl=cardEl(old),nextEl=cardEl(next);oldEl?.classList.add('shadow-leaving');nextEl?.classList.add('shadow-arriving');await sleep(460);if(generation!==gameGeneration)return;if(oldEl&&!cards[old]?.matched&&!fogged.has(old)&&!chained.has(old))oldEl.removeAttribute('aria-disabled');oldEl?.classList.remove('shadowed','shadow-leaving');shadowIndex=next;nextEl?.classList.remove('shadow-arriving');nextEl?.classList.add('shadowed');nextEl?.setAttribute('aria-disabled','true');showToast('Der Schatten ist auf eine andere Karte gewandert.','bad');}
 
   function varkosPhaseForProgress(){const total=matchedPairs.player+matchedPairs.ai;return total<=2?1:total<=4?2:3;}
@@ -178,27 +194,36 @@
     return shiftLine();
   }
 
+  async function ensurePersistentAbility(){
+    if(isPersistentBrax()){if(bombIndex==null&&available().length)return plantBomb();return true;}
+    if(isPersistentAzrak()){if(shadowIndex==null&&available().length)return castShadow();return true;}
+    return false;
+  }
   async function cleanExpired(){if(bombExpiresAt!=null&&playerAttempts>=bombExpiresAt)clearBomb(true);if(fogExpiresAt!=null&&playerAttempts>=fogExpiresAt)clearFog(true);if(tributeActive&&tributeDeadline!=null&&playerAttempts>=tributeDeadline)await failTribute();if(chainExpiresAt!=null&&playerAttempts>=chainExpiresAt)clearChains(true);if(cannonExpiresAt!=null&&playerAttempts>=cannonExpiresAt)clearCannon();if(shadowExpiresAt!=null&&playerAttempts>=shadowExpiresAt)clearShadow();}
   async function maybeAbility(){
     if(gameOver||selected.length)return;
+    await waitForHelpClosed();if(gameOver||selected.length)return;
     const generation=gameGeneration;
     await cleanExpired();if(generation!==gameGeneration)return;
+    if(isPersistentBrax()||isPersistentAzrak()){lock=true;setTurnUi();try{await ensurePersistentAbility();}finally{if(generation===gameGeneration){lock=false;setTurnUi();}}return;}
     const a=ability();if(!a?.type||a.type==='none')return;
     if(a.type==='royal-chaos'){
       await syncVarkosPhase(true);if(generation!==gameGeneration)return;
       const cadence=varkosPhase===1?2:1;
       if(!playerAttempts||playerAttempts%cadence!==0||lastAbilityAttempt===playerAttempts)return;
-      lastAbilityAttempt=playerAttempts;lock=true;setTurnUi();
-      try{await runRoyalChaos();}finally{if(generation===gameGeneration){lock=false;setTurnUi();}}
+      lock=true;setTurnUi();let triggered=false;
+      try{triggered=await runRoyalChaos();}finally{if(generation===gameGeneration){lock=false;setTurnUi();}}
+      if(triggered!==false)lastAbilityAttempt=playerAttempts;
       return;
     }
-    const every=Math.max(1,Number(a.everyPlayerAttempts||3));if(!playerAttempts||playerAttempts%every!==0||lastAbilityAttempt===playerAttempts)return;lastAbilityAttempt=playerAttempts;lock=true;setTurnUi();
-    try{if(a.type==='swap')await swapHiddenCards();else if(a.type==='bomb')await plantBomb();else if(a.type==='fog')await castFog();else if(a.type==='memory-curse')await castMemoryCurse();else if(a.type==='tribute')await startTribute();else if(a.type==='chains')await castChains();else if(a.type==='cannon')await castCannon();else if(a.type==='line-shift')await shiftLine();else if(a.type==='shadow')await castShadow();}finally{if(generation===gameGeneration){lock=false;setTurnUi();}}
+    const every=cadenceForAbility(a);if(!playerAttempts||playerAttempts%every!==0||lastAbilityAttempt===playerAttempts)return;lock=true;setTurnUi();let triggered=false;
+    try{if(a.type==='swap')triggered=await swapHiddenCards();else if(a.type==='bomb')triggered=await plantBomb();else if(a.type==='fog')triggered=await castFog();else if(a.type==='memory-curse')triggered=await castMemoryCurse();else if(a.type==='tribute')triggered=await startTribute();else if(a.type==='chains')triggered=await castChains();else if(a.type==='cannon')triggered=await castCannon();else if(a.type==='line-shift')triggered=await shiftLine();else if(a.type==='shadow')triggered=await castShadow();}finally{if(generation===gameGeneration){lock=false;setTurnUi();}}
+    if(triggered!==false)lastAbilityAttempt=playerAttempts;
   }
   async function enterPlayerTurn(){const generation=gameGeneration;turn='player';lock=true;setTurnUi();await maybeAbility();if(generation===gameGeneration&&!gameOver){lock=false;setTurnUi();}}
 
   async function onPlayerCard(i){
-    if(lock||turn!=='player'||gameOver||cards[i]?.matched||selected.includes(i)||isOpen(i))return;
+    if(helpOpen||lock||turn!=='player'||gameOver||cards[i]?.matched||selected.includes(i)||isOpen(i))return;
     if(fogged.has(i)){const el=cardEl(i);el?.classList.remove('fog-denied');void el?.offsetWidth;el?.classList.add('fog-denied');showToast('🌫 Blackfinns Nebel blockiert diese Karte.','bad');return;}
     if(chained.has(i)){const el=cardEl(i);el?.classList.remove('chain-denied');void el?.offsetWidth;el?.classList.add('chain-denied');showToast(isRoyalChaos()?'⛓ Varkos’ Kronenkette hält diese Karte fest.':'⛓ Ironhooks Kette hält diese Karte fest.','bad');return;}
     if(i===shadowIndex){const el=cardEl(i);el?.classList.remove('shadow-denied');void el?.offsetWidth;el?.classList.add('shadow-denied');showToast('Azraks Schatten blockiert diese Karte.','bad');return;}
@@ -211,12 +236,12 @@
     else{lock=false;setTurnUi();}
   }
   async function resolveSelection(actor){
-    const generation=gameGeneration,[a,b]=selected,match=cards[a].pairId===cards[b].pairId&&cards[a].lang!==cards[b].lang;await sleep(actor==='player'?650:520);if(generation!==gameGeneration)return;
+    const generation=gameGeneration,[a,b]=selected,match=cards[a].pairId===cards[b].pairId&&cards[a].lang!==cards[b].lang;await sleep(actor==='player'?650:520);await waitForHelpClosed();if(generation!==gameGeneration)return;
     if(actor==='player'&&cannonTargets.size)await resolveCannon(match);if(generation!==gameGeneration)return;
     if(match){markMatched([a,b],actor);matchedPairs[actor]++;scores[actor]++;if(actor==='player')satisfyTribute();updateHud();const learned=pairText([a,b]);showToast(actor==='player'?`✓ Stark! ${learned}`:`☠ ${boss().name} schnappt sich: ${learned}`,actor==='player'?'good':'bad');selected=[];if(actor==='player')playerAttempts++;await cleanExpired();if(generation!==gameGeneration)return;if(checkGameEnd())return;if(actor==='ai'){lock=false;setTurnUi();await sleep(520);if(generation===gameGeneration)aiTurn();}else await enterPlayerTurn();}
     else{
       showToast(actor==='player'?`Kein Paar – ${boss().name} ist dran.`:`${boss().name} liegt daneben – dein Zug!`,actor==='player'?'bad':'good');
-      await sleep(actor==='player'?550:430);if(generation!==gameGeneration)return;
+      await sleep(actor==='player'?550:430);await waitForHelpClosed();if(generation!==gameGeneration)return;
       hide(a);hide(b);selected=[];
       if(actor==='player')playerAttempts++;
       await cleanExpired();if(generation!==gameGeneration)return;
@@ -235,9 +260,9 @@
   function knownPair(exclude=[]){const m=new Map();for(const d of aiMemory.values()){if(exclude.includes(d.index)||cards[d.index]?.matched||isOpen(d.index))continue;if(!m.has(d.pairId))m.set(d.pairId,[]);m.get(d.pairId).push(d.index);}for(const arr of m.values())if(arr.length>=2)return arr.slice(0,2);return null;}
   function rememberedMate(pairId,exclude){for(const d of aiMemory.values())if(d.pairId===pairId&&d.index!==exclude&&!cards[d.index]?.matched&&!isOpen(d.index))return d.index;return null;}
   function randomAvailable(exclude=[]){const opts=available().filter(i=>!exclude.includes(i));return opts.length?opts[Math.floor(Math.random()*opts.length)]:null;}
-  async function aiTurn(){if(gameOver)return;const generation=gameGeneration;turn='ai';lock=true;setTurnUi();cleanMemory();await sleep(360);if(generation!==gameGeneration)return;const pair=knownPair();let first=pair?pair[0]:randomAvailable();if(first==null){await enterPlayerTurn();return;}reveal(first,'ai');selected=[first];await sleep(780);if(generation!==gameGeneration)return;let second=pair?pair[1]:rememberedMate(cards[first].pairId,first);if(second==null||cards[second].matched||isOpen(second))second=randomAvailable([first]);if(second==null){hide(first);selected=[];await enterPlayerTurn();return;}reveal(second,'ai');selected.push(second);await resolveSelection('ai');}
+  async function aiTurn(){if(gameOver)return;const generation=gameGeneration;turn='ai';lock=true;setTurnUi();cleanMemory();await sleep(360);await waitForHelpClosed();if(generation!==gameGeneration)return;const pair=knownPair();let first=pair?pair[0]:randomAvailable();if(first==null){await enterPlayerTurn();return;}reveal(first,'ai');selected=[first];await sleep(780);await waitForHelpClosed();if(generation!==gameGeneration)return;let second=pair?pair[1]:rememberedMate(cards[first].pairId,first);if(second==null||cards[second].matched||isOpen(second))second=randomAvailable([first]);if(second==null){hide(first);selected=[];await enterPlayerTurn();return;}reveal(second,'ai');selected.push(second);await resolveSelection('ai');}
 
-  async function usePeek(){if(peekUsed||lock||turn!=='player'||selected.length||gameOver)return;const generation=gameGeneration,opts=available().filter(i=>!fogged.has(i)&&!chained.has(i)&&i!==shadowIndex);if(opts.length<2)return;peekUsed=true;peekBtn.disabled=true;peekBtn.textContent='VERBRAUCHT';lock=true;setTurnUi();const picks=shuffle(opts).slice(0,2);picks.forEach(i=>cardEl(i)?.classList.add('peek'));showToast('🐚 Muschelblick: Merk dir diese beiden Karten!','good');await sleep(1350);if(generation!==gameGeneration)return;picks.forEach(i=>cardEl(i)?.classList.remove('peek'));lock=false;setTurnUi();}
+  async function usePeek(){if(helpOpen||peekUsed||lock||turn!=='player'||selected.length||gameOver)return;const generation=gameGeneration,opts=available().filter(i=>!fogged.has(i)&&!chained.has(i)&&i!==shadowIndex);if(opts.length<2)return;peekUsed=true;peekBtn.disabled=true;peekBtn.textContent='VERBRAUCHT';lock=true;setTurnUi();const picks=shuffle(opts).slice(0,2);picks.forEach(i=>cardEl(i)?.classList.add('peek'));showToast('🐚 Muschelblick: Merk dir diese beiden Karten!','good');await sleep(1350);if(generation!==gameGeneration)return;picks.forEach(i=>cardEl(i)?.classList.remove('peek'));lock=false;setTurnUi();}
   function checkGameEnd(){
     if(matchedPairs.player+matchedPairs.ai<PAIRS.length)return false;gameOver=true;lock=true;setTurnUi();const win=scores.player>scores.ai,tie=scores.player===scores.ai;lastOutcome=win?'win':tie?'tie':'loss';const shells=win?20:tie?10:5,xp=win?60:tie?40:25,b=boss(),next=BOSSES[bossIndex+1],finalBoss=Number(b.bossId)===10;
     resultTitle.textContent=win?`Du hast ${b.name} geschlagen!`:tie?'Unentschieden auf hoher See!':`${b.name} gewinnt diese Runde.`;
@@ -246,9 +271,9 @@
   }
   function setBossInUrl(){const url=new URL(location.href);url.searchParams.set('boss',String(boss().bossId||bossIndex+1));history.replaceState({},'',url);}
 
-  startBtn?.addEventListener('click',()=>{intro.classList.add('hidden');lock=false;setTurnUi();showToast(isRoyalChaos()?'Varkos kämpft in drei Phasen – beobachte seine Wechsel genau.':`Besiege ${boss().name} und merk dir die Übersetzungen.`,'good');});
+  startBtn?.addEventListener('click',async()=>{intro.classList.add('hidden');await enterPlayerTurn();showToast(isRoyalChaos()?'Varkos kämpft in drei Phasen – beobachte seine Wechsel genau.':`Besiege ${boss().name} und merk dir die Übersetzungen.`,'good');});
   restartBtn?.addEventListener('click',()=>resetGame(false));
   againBtn?.addEventListener('click',()=>{if(lastOutcome==='win'&&BOSSES[bossIndex+1]){bossIndex++;setBossInUrl();resetGame(true);}else resetGame(false);});
-  peekBtn?.addEventListener('click',usePeek);helpBtn?.addEventListener('click',()=>help.classList.remove('hidden'));closeHelp?.addEventListener('click',()=>help.classList.add('hidden'));help?.addEventListener('click',e=>{if(e.target===help)help.classList.add('hidden');});
+  peekBtn?.addEventListener('click',usePeek);helpBtn?.addEventListener('click',openHelpPanel);closeHelp?.addEventListener('click',closeHelpPanel);help?.addEventListener('click',e=>{if(e.target===help)closeHelpPanel();});
   resetGame(true);
 })();
