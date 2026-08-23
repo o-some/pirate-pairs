@@ -34,6 +34,9 @@ jobs:
       - name: Verify premium art registry
         run: node tests/art-registry.mjs
 
+      - name: Verify B09 boss clarity contract
+        run: node tests/b09-boss-clarity.mjs
+
       - name: Build
         run: npm run build
 
