@@ -3,10 +3,14 @@ import { spawn } from 'node:child_process';
 import { webkit } from 'playwright';
 
 const port = 4321;
-const route = `http://127.0.0.1:${port}/pirate-pairs/?boss=2&stage=A1`;
+const route = `http://127.0.0.1:${port}/pirate-pairs?boss=2&stage=A1`;
+const readinessRoute = `http://127.0.0.1:${port}/pirate-pairs`;
 let serverLog = '';
 
-const server = spawn('npm', ['run', 'dev', '--', '--host', '127.0.0.1', '--port', String(port)], {
+// Launch Astro directly instead of going through the npm dev script. The npm
+// script already carries a --host flag; passing a second one can make the
+// listening address ambiguous on CI runners.
+const server = spawn('npx', ['astro', 'dev', '--host', '127.0.0.1', '--port', String(port)], {
   stdio: ['ignore', 'pipe', 'pipe'],
   detached: process.platform !== 'win32',
   env: { ...process.env, CI: '1' },
@@ -28,7 +32,7 @@ async function waitForServer(timeoutMs = 30000) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     try {
-      const response = await fetch(route, { redirect: 'manual' });
+      const response = await fetch(readinessRoute, { redirect: 'follow' });
       if (response.status >= 200 && response.status < 500) return;
     } catch {
       // Astro is still starting.
