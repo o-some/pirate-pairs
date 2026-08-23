@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Explosives Piratenfass</title>
+  <desc id="desc">Ein hölzernes Piratenfass mit Dynamitstangen, Zündschnur, Funken und Totenkopfmarkierung.</desc>
+  <defs>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7d321f"/>
+      <stop offset=".35" stop-color="#b75228"/>
+      <stop offset=".66" stop-color="#6b271a"/>
+      <stop offset="1" stop-color="#3a1715"/>
+    </linearGradient>
+    <linearGradient id="woodHi" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e17836"/>
+      <stop offset="1" stop-color="#7a291c"/>
+    </linearGradient>
+    <linearGradient id="iron" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#291c1a"/>
+      <stop offset=".22" stop-color="#8f7152"/>
+      <stop offset=".48" stop-color="#3b2a26"/>
+      <stop offset=".78" stop-color="#a98658"/>
+      <stop offset="1" stop-color="#261916"/>
+    </linearGradient>
+    <linearGradient id="dynamite" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff9a48"/>
+      <stop offset=".3" stop-color="#df442d"/>
+      <stop offset="1" stop-color="#751d22"/>
+    </linearGradient>
+    <radialGradient id="spark" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#fffbd1"/>
+      <stop offset=".25" stop-color="#ffd55f"/>
+      <stop offset=".55" stop-color="#ff7338"/>
+      <stop offset="1" stop-color="#ff3f23" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="50%" cy="54%" r="50%">
+      <stop offset="0" stop-color="#ffad43" stop-opacity=".34"/>
+      <stop offset=".65" stop-color="#dc4528" stop-opacity=".14"/>
+      <stop offset="1" stop-color="#8a1720" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="-35%" y="-35%" width="170%" height="180%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="10" result="blur"/>
+      <feOffset dy="12" result="off"/>
+      <feColorMatrix in="off" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .48 0"/>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="sparkBlur" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="3"/>
+    </filter>
+  </defs>
+
+  <ellipse cx="256" cy="292" rx="205" ry="197" fill="url(#glow)"/>
+
+  <g filter="url(#shadow)">
+    <!-- dynamite bundle -->
+    <g transform="translate(147 55)">
+      <rect x="20" y="30" width="54" height="178" rx="22" fill="url(#dynamite)" stroke="#4e1a20" stroke-width="7"/>
+      <rect x="74" y="14" width="56" height="193" rx="22" fill="url(#dynamite)" stroke="#4e1a20" stroke-width="7"/>
+      <rect x="130" y="37" width="54" height="171" rx="22" fill="url(#dynamite)" stroke="#4e1a20" stroke-width="7"/>
+      <rect x="184" y="22" width="54" height="185" rx="22" fill="url(#dynamite)" stroke="#4e1a20" stroke-width="7"/>
+      <path d="M16 111h228" stroke="#c99b55" stroke-width="13" stroke-linecap="round"/>
+      <path d="M16 128h228" stroke="#4c3024" stroke-width="6" stroke-linecap="round" opacity=".8"/>
+      <path d="M103 18c10-28 31-36 48-31 27 8 22 36 43 34 24-2 25-36 50-42 25-6 47 12 43 39" fill="none" stroke="#2b211c" stroke-width="10" stroke-linecap="round"/>
+      <path d="M104 18c10-28 31-36 48-31" fill="none" stroke="#d8b47c" stroke-width="3" stroke-linecap="round" opacity=".7"/>
+    </g>
+
+    <!-- barrel body -->
+    <path d="M118 221c14-25 263-25 277 0 17 63 17 170-2 224-27 31-247 31-274 0-20-55-20-160-1-224Z" fill="url(#wood)" stroke="#351b18" stroke-width="9"/>
+    <path d="M148 225c10 57 9 166-3 213" fill="none" stroke="#e87b3c" stroke-opacity=".45" stroke-width="8"/>
+    <path d="M199 218c7 62 7 176-1 231" fill="none" stroke="#4f2019" stroke-opacity=".5" stroke-width="7"/>
+    <path d="M256 214v241" stroke="#de6a31" stroke-opacity=".36" stroke-width="8"/>
+    <path d="M313 218c-8 65-8 174 1 230" fill="none" stroke="#4c1e19" stroke-opacity=".58" stroke-width="7"/>
+    <path d="M363 225c-10 61-10 164 4 212" fill="none" stroke="#db6e35" stroke-opacity=".34" stroke-width="8"/>
+
+    <!-- barrel rims -->
+    <ellipse cx="256" cy="224" rx="142" ry="43" fill="#4a201a" stroke="#261817" stroke-width="8"/>
+    <ellipse cx="256" cy="215" rx="126" ry="31" fill="url(#woodHi)" stroke="#7e4729" stroke-width="5"/>
+    <path d="M117 251c32 18 246 18 278 0" fill="none" stroke="url(#iron)" stroke-width="25"/>
+    <path d="M113 360c35 19 251 19 286 0" fill="none" stroke="url(#iron)" stroke-width="25"/>
+    <path d="M124 441c34 21 230 21 264 0" fill="none" stroke="url(#iron)" stroke-width="25"/>
+    <g fill="#d1a36b" opacity=".85">
+      <circle cx="145" cy="252" r="5"/><circle cx="365" cy="252" r="5"/>
+      <circle cx="139" cy="361" r="5"/><circle cx="374" cy="361" r="5"/>
+      <circle cx="150" cy="441" r="5"/><circle cx="363" cy="441" r="5"/>
+    </g>
+
+    <!-- skull insignia -->
+    <g transform="translate(198 282)" fill="#f0d49a" stroke="#6d3a25" stroke-width="5">
+      <path d="M58 2c39 0 62 24 62 58 0 20-9 36-25 45v26H21v-26C6 96-2 81-2 60-2 25 20 2 58 2Z"/>
+      <circle cx="34" cy="57" r="13" fill="#3c2620" stroke="none"/>
+      <circle cx="82" cy="57" r="13" fill="#3c2620" stroke="none"/>
+      <path d="m58 73-10 17h20Z" fill="#3c2620" stroke="none"/>
+      <path d="M29 127 1 150M87 127l29 23M28 150 3 127M88 150l27-24" fill="none" stroke="#efd397" stroke-width="13" stroke-linecap="round"/>
+      <path d="M34 109h48v22H34Z" fill="#ead093"/>
+      <path d="M46 109v22M58 109v22M70 109v22" fill="none" stroke="#6d3a25" stroke-width="4"/>
+    </g>
+  </g>
+
+  <!-- fuse spark -->
+  <g transform="translate(425 58)">
+    <circle r="45" fill="url(#spark)" opacity=".72" filter="url(#sparkBlur)"/>
+    <circle r="18" fill="#fff8c8"/>
+    <g stroke="#ffd060" stroke-width="8" stroke-linecap="round">
+      <path d="M0-50v-31"/><path d="M0 50v31"/><path d="M50 0h31"/><path d="M-50 0h-31"/>
+      <path d="m35-35 22-22"/><path d="m-35 35-22 22"/><path d="m35 35 22 22"/><path d="m-35-35-22-22"/>
+    </g>
+    <g fill="#ff8b39">
+      <circle cx="-72" cy="-20" r="5"/><circle cx="45" cy="-67" r="5"/><circle cx="72" cy="30" r="6"/><circle cx="-44" cy="68" r="5"/>
+    </g>
+  </g>
+</svg>
