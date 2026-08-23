@@ -1,0 +1,36 @@
+name: Apply Roderick target fallback
+
+on:
+  push:
+    branches: [fix/boss-ability-lifecycle-help]
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: ${{ !contains(github.event.head_commit.message, '[roderick-target-fallback-applied]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/boss-ability-lifecycle-help
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Apply Roderick target fallback
+        run: node scripts/_roderick_target_fallback.mjs
+      - name: Validate sources
+        run: |
+          node --check public/pirate-pairs-b04.js
+          node tests/art-registry.mjs
+          node tests/ability-lifecycle.mjs
+      - name: Commit corrected sources
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/pirate-pairs-b04.js src/pages/index.astro
+          git diff --cached --quiet && exit 0
+          git commit -m "Harden Roderick target fallback [roderick-target-fallback-applied]"
+          git push origin HEAD:fix/boss-ability-lifecycle-help
