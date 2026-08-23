@@ -1,0 +1,181 @@
+/* Pirate Pairs — B09 CAF Boss Clarity
+   UI-only finishing layer. Gameplay/state remain owned by the B04 runtime.
+   Loaded last so the active-boss portrait and readability contract have one
+   final visual owner without reopening the older B05/B07 layers. */
+
+/* -------------------------------------------------------------------------
+   Top duel: make the current opponent unmistakable on phone and desktop.
+   ------------------------------------------------------------------------- */
+html body .fighter.enemy .fighter-copy #bossName{
+  font-size:clamp(15px,4.1vw,20px)!important;
+  line-height:1.02!important;
+  letter-spacing:.01em!important;
+  color:#fff0bd!important;
+  text-shadow:0 2px 5px rgba(0,0,0,.34)!important;
+}
+html body .fighter.enemy .portrait{
+  width:60px!important;
+  height:60px!important;
+  border-color:rgba(238,204,112,.52)!important;
+  box-shadow:inset 0 0 0 1px rgba(255,241,190,.1),0 5px 14px rgba(0,0,0,.28),0 0 15px rgba(225,190,91,.12)!important;
+}
+
+/* -------------------------------------------------------------------------
+   Boss ability information: larger copy and icon, still compact enough to
+   float above the board without turning the primary mobile view into a scroll.
+   ------------------------------------------------------------------------- */
+html body .boss-ability-banner{
+  min-height:62px!important;
+  padding:10px 13px 10px 66px!important;
+  text-align:left!important;
+  border-radius:15px!important;
+}
+html body .boss-ability-banner::before{
+  left:11px!important;
+  width:43px!important;
+  height:43px!important;
+}
+html body .boss-ability-banner b{
+  font-size:13px!important;
+  line-height:1.08!important;
+  letter-spacing:.045em!important;
+}
+html body .boss-ability-banner span{
+  margin-top:4px!important;
+  font-size:10px!important;
+  line-height:1.32!important;
+  font-weight:750!important;
+}
+
+html body #intro .boss-power{
+  min-height:68px!important;
+  padding:10px 12px 10px 68px!important;
+}
+html body #intro .boss-power::before{
+  left:11px!important;
+  width:45px!important;
+  height:45px!important;
+}
+html body #intro .boss-power small{
+  font-size:7.6px!important;
+}
+html body #intro .boss-power b{
+  font-size:14px!important;
+  line-height:1.12!important;
+}
+html body #intro .boss-power span{
+  margin-top:4px!important;
+  font-size:9.6px!important;
+  line-height:1.35!important;
+}
+
+/* -------------------------------------------------------------------------
+   Brax / Varkos: the premium powder-barrel sprite remains the only marker art.
+   B09 adds readability and controlled warning feedback, never a platform emoji.
+   ------------------------------------------------------------------------- */
+html body .card.bomb-targeting .boss-marker,
+html body .card.bomb-armed .boss-marker{
+  width:min(70%,56px)!important;
+  height:min(70%,62px)!important;
+  background-image:url('./assets/abilities/powder-barrel.svg')!important;
+  filter:drop-shadow(0 6px 7px rgba(13,5,3,.72)) drop-shadow(0 0 8px rgba(246,117,55,.34))!important;
+}
+html body .card.bomb-targeting .boss-marker{
+  animation:b09BarrelDrop .42s cubic-bezier(.18,.82,.24,1) both!important;
+}
+html body .card.bomb-armed .boss-marker{
+  animation:b09BarrelFuse .68s ease-in-out infinite alternate!important;
+}
+html body .card.bomb-armed::after{
+  content:"PULVERFASS"!important;
+  z-index:14!important;
+  bottom:5px!important;
+  padding:3px 5px!important;
+  border-radius:6px!important;
+  color:#ffe0a3!important;
+  font-size:5.8px!important;
+  font-weight:1000!important;
+  letter-spacing:.055em!important;
+}
+html body[data-boss-id="10"] .card.bomb-armed::after{
+  content:"KRONENFASS"!important;
+}
+@keyframes b09BarrelDrop{
+  from{opacity:0;translate:-50% -70%;scale:1.18}
+  72%{opacity:1;translate:-50% -47%;scale:.96}
+  to{opacity:1;translate:-50% -50%;scale:1}
+}
+@keyframes b09BarrelFuse{
+  from{scale:.98;filter:drop-shadow(0 5px 6px rgba(13,5,3,.62)) drop-shadow(0 0 5px rgba(246,117,55,.24))}
+  to{scale:1.045;filter:drop-shadow(0 6px 7px rgba(13,5,3,.72)) drop-shadow(0 0 13px rgba(255,118,48,.58))}
+}
+
+/* -------------------------------------------------------------------------
+   Active boss dock: use exactly one resolved image URL. B09 JS probes the same
+   primary/fallback used by the top duel portrait and exposes it through
+   --pp-b09-current-boss-art. If JS has not resolved yet, the canonical registry
+   remains the fallback owner through --pp-road-boss.
+   ------------------------------------------------------------------------- */
+html body #bossRoadmap#bossRoadmap .boss-road-item.b07-current-boss{
+  border-color:#f4d275!important;
+  background:linear-gradient(180deg,rgba(31,103,105,.99),rgba(5,43,58,.99))!important;
+  box-shadow:inset 0 0 0 1px rgba(255,239,176,.22),0 0 0 1px rgba(150,108,34,.42),0 0 17px rgba(232,198,101,.28)!important;
+  opacity:1!important;
+}
+html body #bossRoadmap#bossRoadmap .boss-road-item.b07-current-boss .boss-road-num{
+  width:58px!important;
+  height:58px!important;
+  background-image:var(--pp-b09-current-boss-art,var(--pp-road-boss)),radial-gradient(circle at 50% 38%,#1e6676,#082f45 76%)!important;
+  background-repeat:no-repeat,no-repeat!important;
+  background-size:contain,100% 100%!important;
+  background-position:center bottom,center!important;
+  border-color:#ffe293!important;
+  box-shadow:inset 0 0 0 2px rgba(7,39,53,.68),0 4px 9px rgba(0,0,0,.28),0 0 13px rgba(246,205,105,.29)!important;
+}
+html body #bossRoadmap#bossRoadmap .boss-road-item.b07-current-boss .boss-road-name{
+  max-width:68px!important;
+  color:#fff0bd!important;
+  font-size:8.4px!important;
+  line-height:1.05!important;
+  letter-spacing:.025em!important;
+}
+html body #bossRoadmap#bossRoadmap .boss-road-item.b07-current-boss::after{
+  content:"AKTUELL"!important;
+  padding:2px 4px!important;
+  font-size:5.6px!important;
+  letter-spacing:.045em!important;
+}
+html body .boss-roadmap-head{
+  font-size:8.2px!important;
+}
+html body .boss-roadmap-head span{
+  font-size:7.1px!important;
+}
+
+@media (max-width:719px){
+  html body .fighter.enemy .portrait{width:56px!important;height:56px!important}
+  html body .fighter.enemy .fighter-copy #bossName{font-size:clamp(13.5px,4vw,17px)!important}
+  html body .boss-ability-banner{
+    min-height:55px!important;
+    padding:8px 10px 8px 56px!important;
+  }
+  html body .boss-ability-banner::before{left:9px!important;width:37px!important;height:37px!important}
+  html body .boss-ability-banner b{font-size:11.5px!important}
+  html body .boss-ability-banner span{font-size:8.8px!important;line-height:1.28!important}
+  html body #intro .boss-power{min-height:62px!important;padding:8px 10px 8px 58px!important}
+  html body #intro .boss-power::before{left:9px!important;width:39px!important;height:39px!important}
+  html body #intro .boss-power b{font-size:12.5px!important}
+  html body #intro .boss-power span{font-size:8.8px!important}
+}
+
+@media (max-width:370px){
+  html body .fighter.enemy .portrait{width:52px!important;height:52px!important}
+  html body .fighter.enemy .fighter-copy #bossName{font-size:12.8px!important}
+  html body #bossRoadmap#bossRoadmap .boss-road-item.b07-current-boss .boss-road-num{width:54px!important;height:54px!important}
+  html body #bossRoadmap#bossRoadmap .boss-road-item.b07-current-boss .boss-road-name{font-size:7.8px!important}
+}
+
+@media (prefers-reduced-motion:reduce){
+  html body .card.bomb-targeting .boss-marker,
+  html body .card.bomb-armed .boss-marker{animation:none!important}
+}

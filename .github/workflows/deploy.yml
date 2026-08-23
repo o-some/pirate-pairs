@@ -34,8 +34,17 @@ jobs:
       - name: Verify premium art registry
         run: node tests/art-registry.mjs
 
+      - name: Verify B09 boss clarity contract
+        run: node tests/b09-boss-clarity.mjs
+
       - name: Build
         run: npm run build
+
+      - name: Install Playwright WebKit
+        run: npx playwright install --with-deps webkit
+
+      - name: WebKit mobile interaction smoke
+        run: node tests/b09-webkit-smoke.mjs
 
       - name: Setup Pages
         if: github.event_name != 'pull_request'
