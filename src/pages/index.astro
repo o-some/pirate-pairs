@@ -65,7 +65,8 @@ const bossConfig = {
       ability: {
         type: 'swap',
         name: 'Decktausch',
-        description: 'Nach jedem deiner abgeschlossenen Versuche tauscht Kai zwei verdeckte Karten sichtbar miteinander. Folge der Bewegung genau.',
+        description: 'Nach jeder von dir aufgedeckten Wortkarte tauscht Kai zwei andere noch verdeckte Karten sichtbar miteinander. Die offene Karte bleibt sicher liegen.',
+        triggerMode: 'each-word',
         everyPlayerAttempts: 1,
       },
     },

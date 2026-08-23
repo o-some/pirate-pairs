@@ -32,7 +32,8 @@
   const isRoyalChaos = () => ability()?.type === 'royal-chaos';
   const isPersistentBrax = () => bossId()===2 && ability()?.type==='bomb' && ability()?.persistent===true;
   const isPersistentAzrak = () => bossId()===9 && ability()?.type==='shadow' && ability()?.persistent===true;
-  const cadenceForAbility = a => bossId()===1 && a?.type==='swap' ? 1 : Math.max(1,Number(a?.everyPlayerAttempts||3));
+  const isPerWordKai = () => bossId()===1 && ability()?.type==='swap' && ability()?.triggerMode==='each-word';
+  const cadenceForAbility = a => Math.max(1,Number(a?.everyPlayerAttempts||3));
   const bossLabel = () => boss().shortName || boss().name.split(' ').pop().toUpperCase();
   const cardEl = i => grid.querySelector(`.card[data-index="${i}"]`);
   const isOpen = i => { const el=cardEl(i); return !!el && (el.classList.contains('flipped')||el.classList.contains('matched')||el.classList.contains('peek')); };
@@ -207,6 +208,7 @@
     const generation=gameGeneration;
     await cleanExpired();if(generation!==gameGeneration)return;
     if(isPersistentBrax()||isPersistentAzrak()){lock=true;setTurnUi();try{await ensurePersistentAbility();}finally{if(generation===gameGeneration){lock=false;setTurnUi();}}return;}
+    if(isPerWordKai())return;
     const a=ability();if(!a?.type||a.type==='none')return;
     if(a.type==='royal-chaos'){
       await syncVarkosPhase(true);if(generation!==gameGeneration)return;
@@ -232,6 +234,7 @@
     if(triggersBossEffect){lock=true;setTurnUi();if(cards[i].id===cursedCardId)await triggerMemoryCurse(i);if(bombIndex===i)await triggerBomb(i);if(generation!==gameGeneration)return;}
     if(cannonTargets.has(i))cannonTouched=true;
     reveal(i,'player');selected.push(i);
+    if(isPerWordKai()&&available().length>=2&&!gameOver){lock=true;setTurnUi();await swapHiddenCards();if(generation!==gameGeneration)return;}
     if(isPersistentBrax()&&bombIndex==null&&!gameOver){lock=true;setTurnUi();await ensurePersistentAbility();if(generation!==gameGeneration)return;}
     if(selected.length===1&&shadowIndex!=null&&ability()?.type==='shadow'){lock=true;setTurnUi();await moveShadow();if(generation!==gameGeneration)return;}
     if(selected.length===2){lock=true;setTurnUi();await resolveSelection('player');}
