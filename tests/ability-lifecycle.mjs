@@ -9,6 +9,7 @@ assert.match(index,/bossId: 9,[\s\S]*?type: 'shadow',[\s\S]*?persistent: true,/,
 for(const type of ['fog','memory-curse','tribute','chains','cannon','line-shift','royal-chaos'])assert.ok(index.includes(`type: '${type}'`),`missing boss ability type: ${type}`);
 assert.match(core,/const cadenceForAbility = a => bossId\(\)===1/,'Kai cadence override missing');
 assert.match(core,/async function ensurePersistentAbility\(\)/,'persistent ability owner missing');
+assert.match(core,/async function plantBomb\(\)\{\s*const generation=gameGeneration/,'plantBomb must own a generation guard');
 assert.match(core,/bombExpiresAt=persistent\?null/,'Brax trap must not expire by attempt counter');
 assert.match(core,/classList\.remove\('bomb-armed','mystery-covered'\)/,'consumed Brax mystery must reveal normally');
 assert.match(core,/isPersistentBrax\(\)&&bombIndex==null[\s\S]*await ensurePersistentAbility\(\)/,'Brax must immediately re-arm another mystery card');

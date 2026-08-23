@@ -125,7 +125,7 @@
 
   function clearBomb(announce=false){if(bombIndex==null)return;cardEl(bombIndex)?.classList.remove('bomb-armed');bombIndex=null;bombExpiresAt=null;if(announce)showToast('Die Bombe ist ohne Treffer erloschen.','good');}
   async function plantBomb(){
-    const royal=isRoyalChaos(),persistent=isPersistentBrax(),opts=available().filter(i=>!fogged.has(i)&&!chained.has(i));
+    const generation=gameGeneration,royal=isRoyalChaos(),persistent=isPersistentBrax(),opts=available().filter(i=>!fogged.has(i)&&!chained.has(i));
     if(!opts.length)return false;
     clearBomb();bombIndex=shuffle(opts)[0];bombExpiresAt=persistent?null:playerAttempts+(royal?1:2);
     const el=cardEl(bombIndex);el?.classList.add('bomb-targeting');
