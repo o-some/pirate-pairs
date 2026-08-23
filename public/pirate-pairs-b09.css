@@ -54,7 +54,6 @@ body[data-boss-id="10"] .card.bomb-armed .boss-marker{
 .card.bomb-explode .boss-marker{
   width:88%!important;height:88%!important;
   background:url("assets/pirate-dynamite-barrel.svg") center/contain no-repeat!important;
-  opacity:0!important;
   animation:b09ExplosiveBlast .62s ease both!important;
 }
 @keyframes b09ExplosiveDrop{
