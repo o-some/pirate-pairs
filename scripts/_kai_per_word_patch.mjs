@@ -27,11 +27,4 @@ const to=`        description: 'Nach jeder von dir aufgedeckten Wortkarte tausch
 if(!index.includes(from))throw new Error('Missing Kai config anchor');
 index=index.replace(from,to);
 fs.writeFileSync(indexPath,index);
-
-const testPath='tests/ability-lifecycle.mjs';
-let test=fs.readFileSync(testPath,'utf8');
-test=test.replace(
-`assert.match(index,/bossId: 1,[\\s\\S]*?type: 'swap',[\\s\\S]*?everyPlayerAttempts: 1,/,'Kai must trigger after every completed player attempt');`,
-`assert.match(index,/bossId: 1,[\\s\\S]*?type: 'swap',[\\s\\S]*?triggerMode: 'each-word'/,'Kai must be configured for every revealed word');\nassert.match(core,/if\\(isPerWordKai\\(\\)&&available\\(\\)\\.length>=2[\\s\\S]*?await swapHiddenCards\\(\\)/,'Kai must swap after each player word reveal');\nassert.match(core,/if\\(isPerWordKai\\(\\)\\)return;/,'Kai must not also fire from the generic turn cadence');`);
-fs.writeFileSync(testPath,test);
 console.log('Kai each-word trigger applied.');
