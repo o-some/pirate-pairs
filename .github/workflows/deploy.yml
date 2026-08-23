@@ -34,6 +34,9 @@ jobs:
       - name: Verify premium art registry
         run: node tests/art-registry.mjs
 
+      - name: Verify free boss selection
+        run: node tests/boss-select.mjs
+
       - name: Build
         run: npm run build
 
