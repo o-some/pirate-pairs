@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   apply:
-    if: ${{ !contains(github.event.head_commit.message, '[brax-generation-fixed]') }}
+    if: ${{ !contains(github.event.head_commit.message, '[kai-each-word-applied]') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,8 +19,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Fix Brax generation guard
-        run: node scripts/_fix_brax_generation.mjs
+      - name: Apply Kai each-word trigger
+        run: node scripts/_kai_per_word_patch.mjs
       - name: Validate final sources
         run: |
           node --check public/pirate-pairs-b04.js
@@ -30,7 +30,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/pirate-pairs-b04.js tests/ability-lifecycle.mjs
+          git add public/pirate-pairs-b04.js src/pages/index.astro tests/ability-lifecycle.mjs
           git diff --cached --quiet && exit 0
-          git commit -m "Fix Brax lifecycle generation guard [brax-generation-fixed]"
+          git commit -m "Trigger Kai after every revealed word [kai-each-word-applied]"
           git push origin HEAD:fix/boss-ability-lifecycle-help
