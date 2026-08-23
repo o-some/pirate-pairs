@@ -95,7 +95,7 @@ try {
   // The first-start guide and intro CTA intentionally use continuous
   // presentation animation. Invoke their existing click handlers directly so
   // Playwright's stability heuristic does not turn unrelated animation into a
-  // false negative. The board interaction below remains a real WebKit click.
+  // false negative. The board interaction below remains a real WebKit touch.
   const guideContinue = page.locator('#bossGuideContinue');
   if (await guideContinue.count() && await guideContinue.isVisible()) {
     await guideContinue.evaluate(button => button.click());
@@ -104,8 +104,14 @@ try {
   await startButton.evaluate(button => button.click());
   await page.waitForFunction(() => document.getElementById('intro')?.classList.contains('hidden'), null, { timeout: 5000 });
 
+  // Cards also carry continuous visual polish animation. A locator click waits
+  // forever for a mathematically stable box, so use WebKit's real touchscreen
+  // at the live card center instead. This keeps the smoke representative of an
+  // iPhone tap without disabling production animation for the test.
   const firstCard = page.locator('.card').first();
-  await firstCard.click({ timeout: 5000 });
+  const cardBox = await firstCard.boundingBox();
+  assert.ok(cardBox, 'first card must have a tappable mobile bounding box');
+  await page.touchscreen.tap(cardBox.x + cardBox.width / 2, cardBox.y + cardBox.height / 2);
   await page.waitForFunction(() => document.querySelector('.card')?.classList.contains('flipped'), null, { timeout: 5000 });
 
   await page.evaluate(() => document.querySelector('.card')?.classList.add('bomb-armed'));
