@@ -125,8 +125,8 @@ await helpPreserves('#grid .card.fogged');
 console.log('Boss 3 Blackfinn fog + help: PASS');
 
 await startBoss(4);
-for(let i=0;i<5 && await page.locator('#grid .card.cursed-memory').count()===0;i++)await mismatchOne();
-assert.ok(await page.locator('#grid .card.cursed-memory').count()>0,'Roderick memory curse did not activate');
+for(let i=0;i<8 && await page.locator('#grid .card.cursed-memory').count()===0;i++)await mismatchOne();
+assert.ok(await page.locator('#grid .card.cursed-memory').count()>0,'Roderick memory curse did not activate across two cadence windows');
 await helpPreserves('#grid .card.cursed-memory');
 console.log('Boss 4 Roderick curse + help: PASS');
 
