@@ -1,3 +1,5 @@
+@import url('./pirate-pairs-art-registry.css');
+
 /* Pirate Pairs — stable cross-platform card emblem
    Replaces the platform-rendered Unicode glyph with a local SVG asset.
    The underlying text glyph is deliberately made non-rendering so iOS cannot
