@@ -182,3 +182,58 @@ body[data-boss-ability="royal-chaos"]{--pp-ability-art:url('./assets/abilities/r
 @media(prefers-reduced-motion:reduce){
   .card .boss-marker{animation:none!important}
 }
+
+/* -------------------------------------------------------------------------
+   FINAL OWNERSHIP SHIELD
+   This file is imported before some legacy visual styles. The selectors below
+   intentionally carry higher specificity than those legacy rules and the old
+   runtime-generated current-boss fallback style. That makes this registry the
+   effective visual owner without touching gameplay/state code.
+   ------------------------------------------------------------------------- */
+html body .card .boss-marker{
+  position:absolute!important;
+  z-index:12!important;
+  left:50%!important;
+  top:50%!important;
+  right:auto!important;
+  bottom:auto!important;
+  inset:auto!important;
+  translate:-50% -50%!important;
+  transform:none!important;
+  border:0!important;
+  border-radius:0!important;
+  background-color:transparent!important;
+  background-repeat:no-repeat!important;
+  background-position:center!important;
+  background-size:contain!important;
+  box-shadow:none!important;
+  pointer-events:none!important;
+}
+html body .card.boss-swap-a .boss-marker,html body .card.boss-swap-b .boss-marker{background-image:url('./assets/abilities/deck-swap.svg')!important}
+html body .card.bomb-targeting .boss-marker,html body .card.bomb-armed .boss-marker{background-image:url('./assets/abilities/powder-barrel.svg')!important;width:min(66%,50px)!important;height:min(66%,56px)!important}
+html body .card.fogged .boss-marker{background-image:url('./assets/abilities/fog.svg')!important;width:min(72%,64px)!important;height:min(72%,68px)!important}
+html body .card.cursed-memory .boss-marker{background-image:url('./assets/abilities/memory-curse.svg')!important;width:min(66%,54px)!important;height:min(66%,58px)!important}
+html body .card.chained .boss-marker{background-image:url('./assets/abilities/chains.svg')!important;width:min(72%,64px)!important;height:min(72%,68px)!important}
+html body .card.cannon-target .boss-marker{background-image:url('./assets/abilities/cannon.svg')!important;width:min(66%,54px)!important;height:min(66%,58px)!important}
+html body .card.corvin-shifting .boss-marker{background-image:url('./assets/abilities/line-shift.svg')!important;width:min(66%,54px)!important;height:min(66%,58px)!important}
+html body .card.shadowed .boss-marker{background-image:url('./assets/abilities/shadow.svg')!important;width:min(70%,62px)!important;height:min(70%,66px)!important}
+
+/* Current boss: outrank B07's runtime-generated fallback stack. The current
+   tile therefore shows only the immutable anime boss art plus a neutral panel,
+   never a generic fallback character behind a transparent sprite. */
+html body[data-boss-id="1"] #bossRoadmap#bossRoadmap .boss-road-item[data-boss-id="1"].b07-current-boss .boss-road-num{background-image:var(--pp-boss-art-kai),radial-gradient(circle at 50% 38%,#1e6676,#082f45 76%)!important}
+html body[data-boss-id="2"] #bossRoadmap#bossRoadmap .boss-road-item[data-boss-id="2"].b07-current-boss .boss-road-num{background-image:var(--pp-boss-art-brax),radial-gradient(circle at 50% 38%,#1e6676,#082f45 76%)!important}
+html body[data-boss-id="3"] #bossRoadmap#bossRoadmap .boss-road-item[data-boss-id="3"].b07-current-boss .boss-road-num{background-image:var(--pp-boss-art-blackfinn),radial-gradient(circle at 50% 38%,#1e6676,#082f45 76%)!important}
+html body[data-boss-id="4"] #bossRoadmap#bossRoadmap .boss-road-item[data-boss-id="4"].b07-current-boss .boss-road-num{background-image:var(--pp-boss-art-roderick),radial-gradient(circle at 50% 38%,#1e6676,#082f45 76%)!important}
+html body[data-boss-id="5"] #bossRoadmap#bossRoadmap .boss-road-item[data-boss-id="5"].b07-current-boss .boss-road-num{background-image:var(--pp-boss-art-vargas),radial-gradient(circle at 50% 38%,#1e6676,#082f45 76%)!important}
+html body[data-boss-id="6"] #bossRoadmap#bossRoadmap .boss-road-item[data-boss-id="6"].b07-current-boss .boss-road-num{background-image:var(--pp-boss-art-ironhook),radial-gradient(circle at 50% 38%,#1e6676,#082f45 76%)!important}
+html body[data-boss-id="7"] #bossRoadmap#bossRoadmap .boss-road-item[data-boss-id="7"].b07-current-boss .boss-road-num{background-image:var(--pp-boss-art-thorne),radial-gradient(circle at 50% 38%,#1e6676,#082f45 76%)!important}
+html body[data-boss-id="8"] #bossRoadmap#bossRoadmap .boss-road-item[data-boss-id="8"].b07-current-boss .boss-road-num{background-image:var(--pp-boss-art-corvin),radial-gradient(circle at 50% 38%,#1e6676,#082f45 76%)!important}
+html body[data-boss-id="9"] #bossRoadmap#bossRoadmap .boss-road-item[data-boss-id="9"].b07-current-boss .boss-road-num{background-image:var(--pp-boss-art-azrak),radial-gradient(circle at 50% 38%,#1e6676,#082f45 76%)!important}
+html body[data-boss-id="10"] #bossRoadmap#bossRoadmap .boss-road-item[data-boss-id="10"].b07-current-boss .boss-road-num{background-image:var(--pp-boss-art-varkos),radial-gradient(circle at 50% 38%,#1e6676,#082f45 76%)!important}
+
+html body #bossRoadmap .boss-road-num{
+  background-repeat:no-repeat,no-repeat!important;
+  background-size:contain,100% 100%!important;
+  background-position:center bottom,center!important;
+}
