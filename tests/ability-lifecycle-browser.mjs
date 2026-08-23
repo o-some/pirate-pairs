@@ -23,6 +23,11 @@ async function ready(){
 
 async function startBoss(id){
   await page.goto(`${BASE}?boss=${id}`,{waitUntil:'domcontentloaded',timeout:30000});
+  const guide=page.locator('#bossGuideStart');
+  if(await guide.count()){
+    await page.locator('#bossGuideContinue').click();
+    await guide.waitFor({state:'detached',timeout:5000});
+  }
   await page.waitForSelector('#startBtn',{state:'visible',timeout:15000});
   await page.click('#startBtn');
   await ready();
@@ -90,7 +95,6 @@ async function helpPreserves(selector,attribute=null){
   assert.deepEqual(after,before,`closing help changed active boss state for ${selector}`);
 }
 
-// 1 Kai: every revealed word; help must pause the actual swap commit.
 await startBoss(1);
 const kaiBefore=await cardOrder();
 const kaiCard=(await availableCards())[0];assert(kaiCard);
@@ -104,7 +108,6 @@ await page.click('#closeHelp');
 await page.waitForFunction(before=>JSON.stringify([...document.querySelectorAll('#grid .card')].map(n=>n.dataset.id))!==JSON.stringify(before),kaiBefore,{timeout:10000});
 console.log('Boss 1 Kai each-word + help pause: PASS');
 
-// 2 Brax: exactly one persistent mystery; consumed mystery is replaced immediately.
 await startBoss(2);
 assert.equal(await page.locator('#grid .card.mystery-covered').count(),1,'Brax must start with exactly one mystery');
 await helpPreserves('#grid .card.mystery-covered');
@@ -115,42 +118,36 @@ assert.equal(await page.locator('#grid .card.mystery-covered').count(),1,'Brax m
 assert.notEqual(await page.locator('#grid .card.mystery-covered').getAttribute('data-id'),oldMystery,'Brax must move the mystery after it is consumed');
 console.log('Boss 2 Brax persistent mystery + help: PASS');
 
-// 3 Blackfinn: fog activates repeatedly by cadence and survives help.
 await startBoss(3);
 await matchOne();await matchOne();
 assert.ok(await page.locator('#grid .card.fogged').count()>0,'Blackfinn fog did not activate');
 await helpPreserves('#grid .card.fogged');
 console.log('Boss 3 Blackfinn fog + help: PASS');
 
-// 4 Roderick: create known hidden cards with misses; curse must eventually arm.
 await startBoss(4);
 for(let i=0;i<5 && await page.locator('#grid .card.cursed-memory').count()===0;i++)await mismatchOne();
 assert.ok(await page.locator('#grid .card.cursed-memory').count()>0,'Roderick memory curse did not activate');
 await helpPreserves('#grid .card.cursed-memory');
 console.log('Boss 4 Roderick curse + help: PASS');
 
-// 5 Vargas: tribute on cadence and state survives help.
 await startBoss(5);
 await matchOne();await matchOne();await matchOne();
 assert.equal(await page.locator('body.tribute-active').count(),1,'Vargas tribute did not activate');
 await helpPreserves('body','class');
 console.log('Boss 5 Vargas tribute + help: PASS');
 
-// 6 Ironhook: chains arm on cadence and stay through help.
 await startBoss(6);
 await matchOne();await matchOne();await matchOne();
 assert.equal(await page.locator('#grid .card.chained').count(),2,'Ironhook must chain two cards');
 await helpPreserves('#grid .card.chained');
 console.log('Boss 6 Ironhook chains + help: PASS');
 
-// 7 Thorne: cannon targets arm on cadence and stay through help.
 await startBoss(7);
 await matchOne();await matchOne();await matchOne();
 assert.equal(await page.locator('#grid .card.cannon-target').count(),2,'Thorne must target two cards');
 await helpPreserves('#grid .card.cannon-target');
 console.log('Boss 7 Thorne cannon + help: PASS');
 
-// 8 Corvin: line shift must actually change card order.
 await startBoss(8);
 await matchOne();await matchOne();
 const corvinBefore=await cardOrder();
@@ -158,7 +155,6 @@ await matchOne();
 assert.notDeepEqual(await cardOrder(),corvinBefore,'Corvin did not shift the deck');
 console.log('Boss 8 Corvin line shift: PASS');
 
-// 9 Azrak: exactly one permanent shadow; it moves after the first valid word.
 await startBoss(9);
 assert.equal(await page.locator('#grid .card.shadowed').count(),1,'Azrak must start with one shadow');
 await helpPreserves('#grid .card.shadowed');
@@ -169,7 +165,6 @@ await page.waitForFunction(old=>{const n=document.querySelector('#grid .card.sha
 assert.equal(await page.locator('#grid .card.shadowed').count(),1,'Azrak must keep exactly one moving shadow');
 console.log('Boss 9 Azrak persistent moving shadow + help: PASS');
 
-// 10 Varkos: phase I swap, then phase II persistent combat modifier.
 await startBoss(10);
 const varkosBefore=await cardOrder();
 await matchOne();await matchOne();
