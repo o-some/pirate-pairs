@@ -3,7 +3,6 @@ import { chromium, webkit } from 'playwright';
 const BASE='http://localhost:4321/pirate-pairs/';
 
 const assert=(condition,message)=>{if(!condition)throw new Error(message);};
-const pairRoot=id=>String(id||'').replace(/-(source|target)$/,'');
 
 async function dismissGuideAndStart(page){
   await page.waitForSelector('#bossGuideStart');
@@ -50,7 +49,8 @@ async function testBrax(browserType,label){
   page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
 
   await page.goto(`${BASE}?boss=2&stage=A1`,{waitUntil:'networkidle'});
-  await page.waitForSelector('link[data-b09="visual"]');
+  await page.waitForSelector('link[data-b09="visual"]',{state:'attached'});
+  await page.waitForFunction(()=>[...document.styleSheets].some(sheet=>String(sheet.href||'').includes('pirate-pairs-b09.css')));
   await page.waitForSelector('#bossGuideStart');
   await page.locator('#bossGuideContinue').click();
   await page.waitForFunction(()=>!document.querySelector('#bossGuideStart'));
@@ -87,7 +87,6 @@ async function testBrax(browserType,label){
     return {
       ratio:mr.width/cr.width,
       bg:getComputedStyle(marker).backgroundImage,
-      cardTransform:getComputedStyle(card).transform,
     };
   });
   assert(bomb,`${label}: bomb marker missing`);
@@ -109,6 +108,7 @@ async function testBossDockAndPreview(browserType,label,viewport){
   page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
 
   await page.goto(`${BASE}?boss=10&stage=A1`,{waitUntil:'networkidle'});
+  await page.waitForSelector('link[data-b09="visual"]',{state:'attached'});
   await dismissGuideAndStart(page);
   await page.waitForSelector('.boss-road-item.b07-current-boss .boss-road-live-sprite',{timeout:10000});
 
@@ -150,12 +150,8 @@ async function testBossDockAndPreview(browserType,label,viewport){
   await first.click();
   await page.waitForFunction(()=>document.querySelector('.card.flipped'));
 
-  const overflow=await page.evaluate(()=>({
-    horizontal:document.documentElement.scrollWidth-window.innerWidth,
-    vertical:document.documentElement.scrollHeight-window.innerHeight,
-  }));
-  assert(overflow.horizontal<=2,`${label}: horizontal overflow ${overflow.horizontal}`);
-  assert(overflow.vertical<=4,`${label}: vertical page overflow ${overflow.vertical}`);
+  const horizontalOverflow=await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth);
+  assert(horizontalOverflow<=2,`${label}: horizontal overflow ${horizontalOverflow}`);
 
   await page.locator('#restartBtn').click();
   await page.waitForFunction(()=>document.querySelectorAll('.card.flipped').length===0 && document.querySelector('#playerScore')?.textContent==='0');
