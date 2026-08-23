@@ -102,20 +102,33 @@ try {
   }
   const startButton = page.locator('#startBtn');
   await startButton.evaluate(button => button.click());
-  await page.waitForFunction(() => document.getElementById('intro')?.classList.contains('hidden'), null, { timeout: 5000 });
+
+  // Brax now arms one persistent ?-trap immediately when the duel starts.
+  // Wait for that intentional lifecycle transition to finish before testing
+  // generic WebKit card input; otherwise the touch correctly lands while the
+  // game is still locked and would be ignored.
+  await page.waitForFunction(() => {
+    const introHidden = document.getElementById('intro')?.classList.contains('hidden');
+    const bannerVisible = document.getElementById('bossAbilityBanner')?.classList.contains('show');
+    const playerTurn = document.getElementById('turnPill')?.textContent?.trim() === 'DU BIST DRAN';
+    const mysteries = document.querySelectorAll('#grid .card.mystery-covered').length;
+    return introHidden && !bannerVisible && playerTurn && mysteries === 1;
+  }, null, { timeout: 10000 });
 
   // Cards also carry continuous visual polish animation. A locator click waits
   // forever for a mathematically stable box, so use WebKit's real touchscreen
-  // at the live card center instead. This keeps the smoke representative of an
-  // iPhone tap without disabling production animation for the test.
-  const firstCard = page.locator('.card').first();
+  // at the live center of a non-trap card. This keeps the smoke representative
+  // of an iPhone tap without consuming Brax's boss mechanic.
+  const firstCard = page.locator('#grid .card:not(.mystery-covered)').first();
+  const tappedId = await firstCard.getAttribute('data-id');
+  assert.ok(tappedId, 'a non-trap card must be available for the WebKit touch smoke');
   const cardBox = await firstCard.boundingBox();
   assert.ok(cardBox, 'first card must have a tappable mobile bounding box');
   await page.touchscreen.tap(cardBox.x + cardBox.width / 2, cardBox.y + cardBox.height / 2);
-  await page.waitForFunction(() => document.querySelector('.card')?.classList.contains('flipped'), null, { timeout: 5000 });
+  await page.waitForFunction(id => document.querySelector(`#grid .card[data-id="${CSS.escape(id)}"]`)?.classList.contains('flipped'), tappedId, { timeout: 5000 });
 
-  await page.evaluate(() => document.querySelector('.card')?.classList.add('bomb-armed'));
-  const barrel = await page.locator('.card').first().locator('.boss-marker').evaluate(marker => {
+  await firstCard.evaluate(card => card.classList.add('bomb-armed'));
+  const barrel = await firstCard.locator('.boss-marker').evaluate(marker => {
     const style = getComputedStyle(marker);
     return {
       backgroundImage: style.backgroundImage,

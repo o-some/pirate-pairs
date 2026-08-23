@@ -37,6 +37,11 @@ jobs:
       - name: Verify B09 boss clarity contract
         run: node tests/b09-boss-clarity.mjs
 
+      - name: Verify boss ability lifecycle contracts
+        run: |
+          node --check public/pirate-pairs-b04.js
+          node tests/ability-lifecycle.mjs
+
       - name: Build
         run: npm run build
 
@@ -58,13 +63,47 @@ jobs:
         with:
           path: ./dist
 
+  boss-lifecycle-browser:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Build
+        run: npm run build
+
+      - name: Start preview
+        run: |
+          npm run preview > /tmp/pirate-pairs-preview.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4321/pirate-pairs/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/pirate-pairs-preview.log
+          exit 1
+
+      - name: Run all-boss lifecycle browser smoke
+        run: node tests/ability-lifecycle-browser.mjs
+
   deploy:
     if: github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build, boss-lifecycle-browser]
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
