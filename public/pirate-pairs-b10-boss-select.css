@@ -1,0 +1,74 @@
+/* Pirate Pairs — B10 Free Boss Select
+   UI-only enhancement for the existing boss preview. Gameplay stays in B04. */
+
+html body.boss-free-select .boss-road-item.past,
+html body.boss-free-select .boss-road-item.future{
+  opacity:1!important;
+  filter:none!important;
+}
+html body.boss-free-select .boss-road-item.past .boss-road-num::after{
+  display:none!important;
+}
+html body.boss-free-select .boss-road-item{
+  transition:border-color .18s ease,box-shadow .18s ease,filter .18s ease,background .18s ease;
+}
+html body.boss-free-select .boss-road-item:not(.current):not(.b07-current-boss):active{
+  border-color:rgba(235,199,105,.65)!important;
+  box-shadow:inset 0 0 0 1px rgba(255,232,156,.08),0 0 11px rgba(217,181,83,.13)!important;
+}
+html body.boss-free-select .boss-roadmap-head b{
+  color:#f4d785!important;
+}
+html body.boss-free-select .boss-roadmap-head span{
+  color:#acd5ce!important;
+}
+
+.boss-preview-actions{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 84px;
+  gap:7px;
+  margin-top:9px;
+}
+.boss-preview-play{
+  appearance:none;
+  min-height:44px;
+  border:1px solid #efce75;
+  border-radius:12px;
+  padding:9px 10px;
+  background:linear-gradient(180deg,#fff0b2 0%,#e2bd63 55%,#c89137 100%);
+  color:#082e3e;
+  box-shadow:inset 0 1px rgba(255,255,255,.75),0 5px 13px rgba(0,0,0,.28),0 0 14px rgba(225,188,88,.12);
+  font:950 10px/1.12 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  letter-spacing:.055em;
+  cursor:pointer;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+.boss-preview-play:active{filter:brightness(.96);transform:translateY(1px)}
+.boss-preview-play:focus-visible{outline:2px solid #9ff6e9;outline-offset:2px}
+.boss-preview-play:disabled{opacity:.7;cursor:wait}
+.boss-preview-actions .boss-preview-close-main{
+  min-height:44px;
+  padding:8px 7px;
+  border-color:rgba(220,190,108,.38);
+  background:linear-gradient(180deg,#0c485d,#073448);
+  color:#d8ece7;
+  box-shadow:inset 0 1px rgba(255,255,255,.07),0 4px 10px rgba(0,0,0,.22);
+  font-size:8px;
+}
+.boss-preview-status{
+  margin-bottom:0!important;
+  color:#b8d5d0!important;
+  font-size:8.2px!important;
+  line-height:1.36!important;
+}
+
+@media(max-width:370px){
+  .boss-preview-actions{grid-template-columns:minmax(0,1fr) 72px;gap:5px}
+  .boss-preview-play{font-size:9px;padding-inline:7px}
+  .boss-preview-actions .boss-preview-close-main{font-size:7.3px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  html body.boss-free-select .boss-road-item,.boss-preview-play{transition:none!important}
+}

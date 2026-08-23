@@ -7,9 +7,19 @@
   const startBtn=document.getElementById('startBtn');
   if(!BOSSES.length||!skillbar||!peekBtn||!intro)return;
 
+  document.body.classList.add('boss-free-select');
+  if(!document.querySelector('link[data-b10-boss-select]')){
+    const style=document.createElement('link');
+    style.rel='stylesheet';
+    style.dataset.b10BossSelect='';
+    style.href=new URL('pirate-pairs-b10-boss-select.css',document.currentScript?.src||location.href).href;
+    document.head.appendChild(style);
+  }
+
   const bossById=id=>BOSSES.find(b=>Number(b.bossId)===Number(id))||BOSSES[0];
   const currentBossId=()=>Number(document.body.dataset.bossId||BOSSES[0]?.bossId||1);
   const shortName=b=>(b.shortName||b.name||`BOSS ${b.bossId}`).replace(/^PIRATENKÖNIG\s+/i,'VARKOS').replace(/^KAPITÄN\s+/i,'').slice(0,9);
+  const currentStage=()=>String(document.body.dataset.languageStage||window.__PIRATE_PAIRS_STAGE__?.stage||'A1').toUpperCase();
   const modalBackgroundNodes=()=>[
     document.getElementById('app'),
     intro,
@@ -65,10 +75,10 @@
         <div class="boss-guide-steps" aria-label="Bossduell Hinweise">
           <div class="boss-guide-step"><b>BEOBACHTEN</b>Animationen zeigen dir, was der Boss verändert.</div>
           <div class="boss-guide-step"><b>ANPASSEN</b>Bomben, Nebel, Ketten und mehr verändern deine Taktik.</div>
-          <div class="boss-guide-step"><b>VORSCHAU</b>Unten kannst du jeden Boss und seinen Trick ansehen.</div>
+          <div class="boss-guide-step"><b>AUSWÄHLEN</b>Unten kannst du jeden Boss ansehen, spielen oder später wiederholen.</div>
         </div>
-        <button class="boss-guide-cta" id="bossGuideContinue" type="button">WEITER ZUM ERSTEN BOSS</button>
-        <span class="boss-guide-foot">Die Boss-Vorschau verändert dein laufendes Duell nicht.</span>
+        <button class="boss-guide-cta" id="bossGuideContinue" type="button">WEITER ZUM BOSS</button>
+        <span class="boss-guide-foot">Du kannst die zehn Bosse jederzeit in einer anderen Reihenfolge spielen.</span>
       </div>`;
     document.body.appendChild(overlay);
     const continueBtn=overlay.querySelector('#bossGuideContinue');
@@ -101,7 +111,7 @@
     overlay.setAttribute('aria-hidden','true');
     overlay.innerHTML=`
       <div class="boss-preview-card">
-        <button class="boss-preview-x" type="button" aria-label="Boss-Vorschau schließen">×</button>
+        <button class="boss-preview-x" type="button" aria-label="Boss-Auswahl schließen">×</button>
         <div class="boss-preview-portrait"><img id="bossPreviewImage" alt="" decoding="async" /></div>
         <span class="boss-preview-level" id="bossPreviewLevel"></span>
         <h2 id="bossPreviewName"></h2>
@@ -112,7 +122,10 @@
           <p id="bossPreviewCopy"></p>
         </div>
         <span class="boss-preview-status" id="bossPreviewStatus"></span>
-        <button class="boss-preview-close-main" type="button">OK</button>
+        <div class="boss-preview-actions">
+          <button class="boss-preview-play" id="bossPreviewPlay" type="button">GEGEN DIESEN BOSS SPIELEN</button>
+          <button class="boss-preview-close-main" type="button">ZURÜCK</button>
+        </div>
       </div>`;
     document.body.appendChild(overlay);
     let returnFocus=null;
@@ -130,8 +143,20 @@
       overlay.inert=false;
       overlay.removeAttribute('aria-hidden');
       overlay.classList.remove('hidden');
-      window.setTimeout(()=>overlay.querySelector('.boss-preview-close-main')?.focus({preventScroll:true}),180);
+      window.setTimeout(()=>overlay.querySelector('.boss-preview-play')?.focus({preventScroll:true}),180);
     };
+    const play=overlay.querySelector('.boss-preview-play');
+    play?.addEventListener('click',()=>{
+      const id=Number(overlay.dataset.bossId);
+      if(!Number.isInteger(id)||!BOSSES.some(b=>Number(b.bossId)===id))return;
+      play.disabled=true;
+      play.textContent='DUELL WIRD VORBEREITET …';
+      const url=new URL(location.href);
+      url.searchParams.set('boss',String(id));
+      url.searchParams.set('bossPick','1');
+      url.hash='';
+      location.assign(url.toString());
+    });
     overlay.querySelector('.boss-preview-x')?.addEventListener('click',close);
     overlay.querySelector('.boss-preview-close-main')?.addEventListener('click',close);
     overlay.addEventListener('click',e=>{if(e.target===overlay)close();});
@@ -146,6 +171,8 @@
 
   function openPreview(b,trigger){
     const active=currentBossId();
+    const selected=Number(b.bossId);
+    preview.overlay.dataset.bossId=String(selected);
     const image=document.getElementById('bossPreviewImage');
     if(image){
       image.onerror=()=>{if(b.fallback&&image.src!==b.fallback)image.src=b.fallback;};
@@ -158,17 +185,17 @@
     const power=document.getElementById('bossPreviewPower');
     const copy=document.getElementById('bossPreviewCopy');
     const status=document.getElementById('bossPreviewStatus');
-    if(level)level.textContent=`LEVEL ${b.bossId} · ${Number(b.bossId)===active?'AKTUELLER BOSS':'BOSS-VORSCHAU'}`;
+    const play=document.getElementById('bossPreviewPlay');
+    if(level)level.textContent=`LEVEL ${b.bossId} · ${selected===active?'AKTUELLER BOSS':'FREIE BOSS-AUSWAHL'}`;
     if(name)name.textContent=b.name||`Boss ${b.bossId}`;
     if(location)location.textContent=b.location||'';
     if(power)power.textContent=b.ability?.name||'Kein Spezialtrick';
     if(copy)copy.textContent=b.ability?.description||'Dieser Boss besitzt keine zusätzliche Fähigkeit.';
-    if(status){
-      status.textContent=Number(b.bossId)===active
-        ? 'Das ist dein aktuelles Duell. Schließe die Vorschau, um weiterzuspielen.'
-        : Number(b.bossId)<active
-          ? 'Bereits passiert · Du kannst den Trick jederzeit noch einmal nachlesen.'
-          : 'Vorschau auf einen späteren Boss · Dein aktuelles Duell bleibt unverändert.';
+    if(status)status.textContent=`Stufe ${currentStage()} bleibt aktiv. Karten und Punkte starten für dieses Duell neu. Du kannst jeden Boss beliebig oft wählen.`;
+    if(play){
+      play.disabled=false;
+      play.textContent=selected===active?`${shortName(b)} NOCH EINMAL SPIELEN`:`GEGEN ${shortName(b)} SPIELEN`;
+      play.setAttribute('aria-label',selected===active?`${b.name} noch einmal spielen`:`Gegen ${b.name} spielen`);
     }
     preview.openFrom(trigger);
   }
@@ -176,8 +203,8 @@
   const shell=document.createElement('div');
   shell.className='boss-roadmap-shell';
   shell.innerHTML=`
-    <div class="boss-roadmap-head"><b>BOSS-ROUTE 1–10</b><span>TIPPE FÜR FÄHIGKEIT</span></div>
-    <div class="boss-roadmap" id="bossRoadmap" role="group" aria-label="Boss-Vorschau"></div>`;
+    <div class="boss-roadmap-head"><b>BOSS-AUSWAHL 1–10</b><span>ANSEHEN · SPIELEN · WIEDERHOLEN</span></div>
+    <div class="boss-roadmap" id="bossRoadmap" role="group" aria-label="Freie Boss-Auswahl"></div>`;
   const rail=shell.querySelector('#bossRoadmap');
   const portraitGradient='radial-gradient(circle at 50% 38%, #18566a, #072d42 74%)';
 
@@ -229,7 +256,7 @@
     button.dataset.bossId=String(b.bossId);
     button.dataset.bossImage=b.image||'';
     button.dataset.bossFallback=b.fallback||'';
-    button.setAttribute('aria-label',`Level ${b.bossId}: ${b.name}. Fähigkeit ${b.ability?.name||'keine'}. Vorschau öffnen.`);
+    button.setAttribute('aria-label',`Level ${b.bossId}: ${b.name}. Fähigkeit ${b.ability?.name||'keine'}. Boss ansehen und Kampfoption öffnen.`);
     button.innerHTML=`<span class="boss-road-num">${String(b.bossId).padStart(2,'0')}</span><span class="boss-road-name">${shortName(b)}</span>`;
     setPortraitBackground(button,'');
     button.addEventListener('click',()=>openPreview(b,button));
@@ -265,7 +292,15 @@
   }
 
   enhanceBossIntro();
-  createStartGuide();
+  const startGuide=createStartGuide();
+  const navigationParams=new URLSearchParams(location.search);
+  if(navigationParams.get('bossPick')==='1'){
+    document.body.dataset.bossPick='1';
+    const cleanUrl=new URL(location.href);
+    cleanUrl.searchParams.delete('bossPick');
+    history.replaceState({},'',cleanUrl);
+    window.requestAnimationFrame(()=>startGuide.querySelector('#bossGuideContinue')?.click());
+  }
   window.requestAnimationFrame(()=>updateRoadmap({scroll:true}));
 
   const observer=new MutationObserver(mutations=>{
