@@ -217,4 +217,23 @@
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installInputSafety,{once:true});
   else installInputSafety();
+
+  // B09 — load the isolated visual layer without changing the stable Astro markup.
+  // CSS may load immediately; the portrait synchronizer waits until every deferred
+  // gameplay/guide script has created the boss roadmap.
+  const b09Css=document.createElement('link');
+  b09Css.rel='stylesheet';
+  b09Css.href=new URL('pirate-pairs-b09.css',document.baseURI).href;
+  b09Css.dataset.b09='visual';
+  document.head.appendChild(b09Css);
+
+  const loadB09=()=>{
+    if(document.querySelector('script[data-b09="visual"]'))return;
+    const script=document.createElement('script');
+    script.src=new URL('pirate-pairs-b09.js',document.baseURI).href;
+    script.dataset.b09='visual';
+    document.body.appendChild(script);
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',loadB09,{once:true});
+  else loadB09();
 })();
