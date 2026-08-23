@@ -92,15 +92,16 @@ try {
   assert.ok(art.abilityCopySize >= 8.5, `boss ability copy is too small on phone WebKit: ${art.abilityCopySize}px`);
   assert.equal(art.noHorizontalOverflow, true, 'B09 must not introduce horizontal mobile overflow');
 
-  // The first-start boss guide intentionally has continuous presentation
-  // animation. Dismiss that unrelated setup overlay through its own click
-  // handler so Playwright's stability heuristic cannot block the B09 smoke.
+  // The first-start guide and intro CTA intentionally use continuous
+  // presentation animation. Invoke their existing click handlers directly so
+  // Playwright's stability heuristic does not turn unrelated animation into a
+  // false negative. The board interaction below remains a real WebKit click.
   const guideContinue = page.locator('#bossGuideContinue');
   if (await guideContinue.count() && await guideContinue.isVisible()) {
     await guideContinue.evaluate(button => button.click());
   }
   const startButton = page.locator('#startBtn');
-  await startButton.click({ timeout: 5000 });
+  await startButton.evaluate(button => button.click());
   await page.waitForFunction(() => document.getElementById('intro')?.classList.contains('hidden'), null, { timeout: 5000 });
 
   const firstCard = page.locator('.card').first();
