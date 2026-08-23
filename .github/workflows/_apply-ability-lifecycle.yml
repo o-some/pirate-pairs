@@ -1,0 +1,36 @@
+name: Apply ability lifecycle patch
+
+on:
+  push:
+    branches: [fix/boss-ability-lifecycle-help]
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: ${{ !contains(github.event.head_commit.message, '[ability-lifecycle-applied]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/boss-ability-lifecycle-help
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Apply targeted source patch
+        run: node scripts/_apply_ability_lifecycle_patch.mjs
+      - name: Validate patched sources
+        run: |
+          node --check public/pirate-pairs-b04.js
+          node tests/art-registry.mjs
+          node tests/ability-lifecycle.mjs
+      - name: Commit patched sources
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/pirate-pairs-b04.js src/pages/index.astro public/pirate-pairs-card-emblem.css public/pirate-pairs-ability-lifecycle.css tests/ability-lifecycle.mjs .github/workflows/deploy.yml
+          git diff --cached --quiet && exit 0
+          git commit -m "Fix repeatable boss ability lifecycle [ability-lifecycle-applied]"
+          git push origin HEAD:fix/boss-ability-lifecycle-help
