@@ -25,7 +25,7 @@ for(const type of ['fog','memory-curse','tribute','chains','cannon','line-shift'
   assert.ok(index.includes(`type: '${type}'`),`missing boss ability type: ${type}`);
 }
 assert.match(core,/async function ensurePersistentAbility\(\)/,'persistent ability owner missing');
-assert.match(core,/const every=cadenceForAbility\(a\)/,'repeatable non-persistent abilities must use the shared cadence scheduler');
+assert.match(core,/const every=cadenceForAbility\(a\);const lastSuccess=Math\.max\(0,lastAbilityAttempt\);if\(!playerAttempts\|\|playerAttempts-lastSuccess<every\)return/,'shared cadence must retry a due ability until it actually succeeds');
 assert.match(core,/if\(triggered!==false\)lastAbilityAttempt=playerAttempts/,'failed ability attempts must not consume future cadence triggers');
 
 assert.match(core,/if\(helpOpen\|\|lock\|\|turn!=='player'/,'card input must stop while help is open');
