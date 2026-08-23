@@ -17,7 +17,8 @@ async function ready(){
     const help=document.querySelector('#help');
     const banner=document.querySelector('#bossAbilityBanner');
     const turn=document.querySelector('#turnPill')?.textContent?.trim();
-    return intro?.classList.contains('hidden')&&help?.classList.contains('hidden')&&turn==='DU BIST DRAN'&&!banner?.classList.contains('show');
+    const peek=document.querySelector('#peekBtn');
+    return intro?.classList.contains('hidden')&&help?.classList.contains('hidden')&&turn==='DU BIST DRAN'&&!banner?.classList.contains('show')&&peek&&!peek.disabled;
   },null,{timeout:20000});
 }
 
@@ -54,12 +55,6 @@ async function findPair(){
   return [...groups.values()].find(v=>v.length>=2)?.slice(0,2)||null;
 }
 
-async function findMismatch(){
-  const list=await availableCards();
-  for(let i=0;i<list.length;i++)for(let j=i+1;j<list.length;j++)if(pairKey(list[i].id)!==pairKey(list[j].id))return [list[i],list[j]];
-  return null;
-}
-
 async function progress(){
   return Number(((await page.textContent('#progress'))||'0').split('/')[0].trim());
 }
@@ -71,14 +66,6 @@ async function matchOne(){
   await page.click(`#grid .card[data-id="${pair[0].id}"]`);
   await page.click(`#grid .card[data-id="${pair[1].id}"]`);
   await page.waitForFunction(v=>Number((document.querySelector('#progress')?.textContent||'0').split('/')[0].trim())>v,before,{timeout:15000});
-  await ready();
-}
-
-async function mismatchOne(){
-  await ready();
-  const pair=await findMismatch();assert(pair,'no mismatch available');
-  await page.click(`#grid .card[data-id="${pair[0].id}"]`);
-  await page.click(`#grid .card[data-id="${pair[1].id}"]`);
   await ready();
 }
 
@@ -153,6 +140,7 @@ await startBoss(8);
 await matchOne();await matchOne();
 const corvinBefore=await cardOrder();
 await matchOne();
+await page.waitForFunction(before=>JSON.stringify([...document.querySelectorAll('#grid .card')].map(n=>n.dataset.id))!==JSON.stringify(before),corvinBefore,{timeout:10000});
 assert.notDeepEqual(await cardOrder(),corvinBefore,'Corvin did not shift the deck');
 console.log('Boss 8 Corvin line shift: PASS');
 
@@ -169,6 +157,7 @@ console.log('Boss 9 Azrak persistent moving shadow + help: PASS');
 await startBoss(10);
 const varkosBefore=await cardOrder();
 await matchOne();await matchOne();
+await page.waitForFunction(before=>JSON.stringify([...document.querySelectorAll('#grid .card')].map(n=>n.dataset.id))!==JSON.stringify(before),varkosBefore,{timeout:10000});
 assert.notDeepEqual(await cardOrder(),varkosBefore,'Varkos phase-I swap did not run');
 await matchOne();
 assert.equal(await page.getAttribute('body','data-varkos-phase'),'2','Varkos did not transition to phase II');
