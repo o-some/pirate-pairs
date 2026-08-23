@@ -17,8 +17,7 @@ async function ready(){
     const help=document.querySelector('#help');
     const banner=document.querySelector('#bossAbilityBanner');
     const turn=document.querySelector('#turnPill')?.textContent?.trim();
-    const peek=document.querySelector('#peekBtn');
-    return intro?.classList.contains('hidden')&&help?.classList.contains('hidden')&&turn==='DU BIST DRAN'&&!banner?.classList.contains('show')&&peek&&!peek.disabled;
+    return intro?.classList.contains('hidden')&&help?.classList.contains('hidden')&&turn==='DU BIST DRAN'&&!banner?.classList.contains('show');
   },null,{timeout:20000});
 }
 
