@@ -1,0 +1,184 @@
+/* Pirate Pairs — canonical premium art registry
+   One visual owner for boss-route portraits and boss ability sprites.
+   Gameplay/state remain owned by the existing B04 boss runtime. */
+
+:root{
+  --pp-boss-art-kai:url('https://raw.githubusercontent.com/o-some/word-guardians/927afa882df75ab0c74c426d822af89767b5ec38/assets/bosses/boss-01-pirat-kai.png');
+  --pp-boss-art-brax:url('https://raw.githubusercontent.com/o-some/word-guardians/927afa882df75ab0c74c426d822af89767b5ec38/assets/bosses/boss-02-kapitaen-brax.png');
+  --pp-boss-art-blackfinn:url('https://raw.githubusercontent.com/o-some/word-guardians/927afa882df75ab0c74c426d822af89767b5ec38/assets/bosses/boss-03-blackfinn.png');
+  --pp-boss-art-roderick:url('https://raw.githubusercontent.com/o-some/word-guardians/927afa882df75ab0c74c426d822af89767b5ec38/assets/bosses/boss-04-alt-kapitaen-roderick.png');
+  --pp-boss-art-vargas:url('https://raw.githubusercontent.com/o-some/word-guardians/927afa882df75ab0c74c426d822af89767b5ec38/assets/bosses/boss-05-piratenbaron-vargas.png');
+  --pp-boss-art-ironhook:url('https://raw.githubusercontent.com/o-some/word-guardians/927afa882df75ab0c74c426d822af89767b5ec38/assets/bosses/boss-06-kapitaen-ironhook.png');
+  --pp-boss-art-thorne:url('https://raw.githubusercontent.com/o-some/word-guardians/927afa882df75ab0c74c426d822af89767b5ec38/assets/bosses/boss-07-admiral-thorne.png');
+  --pp-boss-art-corvin:url('https://raw.githubusercontent.com/o-some/word-guardians/927afa882df75ab0c74c426d822af89767b5ec38/assets/bosses/boss-08-kartenmeister-corvin.png');
+  --pp-boss-art-azrak:url('https://raw.githubusercontent.com/o-some/word-guardians/927afa882df75ab0c74c426d822af89767b5ec38/assets/bosses/boss-09-schattenfuerst-azrak.png');
+  --pp-boss-art-varkos:url('https://raw.githubusercontent.com/o-some/word-guardians/927afa882df75ab0c74c426d822af89767b5ec38/assets/bosses/boss-10-piratenkoenig-varkos.png');
+  --pp-ability-art:none;
+}
+
+/* -------------------------------------------------------------------------
+   Boss portraits: use the exact same immutable anime source as the duel UI.
+   Never layer a generic fallback character behind a transparent boss PNG.
+   ------------------------------------------------------------------------- */
+.boss-road-item[data-boss-id="1"] .boss-road-num{--pp-road-boss:var(--pp-boss-art-kai)}
+.boss-road-item[data-boss-id="2"] .boss-road-num{--pp-road-boss:var(--pp-boss-art-brax)}
+.boss-road-item[data-boss-id="3"] .boss-road-num{--pp-road-boss:var(--pp-boss-art-blackfinn)}
+.boss-road-item[data-boss-id="4"] .boss-road-num{--pp-road-boss:var(--pp-boss-art-roderick)}
+.boss-road-item[data-boss-id="5"] .boss-road-num{--pp-road-boss:var(--pp-boss-art-vargas)}
+.boss-road-item[data-boss-id="6"] .boss-road-num{--pp-road-boss:var(--pp-boss-art-ironhook)}
+.boss-road-item[data-boss-id="7"] .boss-road-num{--pp-road-boss:var(--pp-boss-art-thorne)}
+.boss-road-item[data-boss-id="8"] .boss-road-num{--pp-road-boss:var(--pp-boss-art-corvin)}
+.boss-road-item[data-boss-id="9"] .boss-road-num{--pp-road-boss:var(--pp-boss-art-azrak)}
+.boss-road-item[data-boss-id="10"] .boss-road-num{--pp-road-boss:var(--pp-boss-art-varkos)}
+
+.boss-road-item .boss-road-num{
+  color:transparent!important;
+  font-size:0!important;
+  background-image:var(--pp-road-boss),radial-gradient(circle at 50% 38%,#18566a,#072d42 74%)!important;
+  background-repeat:no-repeat,no-repeat!important;
+  background-size:contain,100% 100%!important;
+  background-position:center bottom,center!important;
+  background-color:#0a3147!important;
+}
+.boss-road-item.current .boss-road-num,
+.boss-road-item.b07-current-boss .boss-road-num{
+  background-image:var(--pp-road-boss),radial-gradient(circle at 50% 38%,#1e6676,#082f45 76%)!important;
+  background-size:contain,100% 100%!important;
+  background-position:center bottom,center!important;
+}
+
+/* The opponent portrait, intro portrait and result portrait share the same fit rule. */
+#bossDuelSprite,#introBossSprite,#resultBossSprite,#bossPreviewImage{
+  object-fit:contain!important;
+  object-position:center bottom!important;
+  max-width:100%!important;
+  max-height:100%!important;
+}
+
+/* -------------------------------------------------------------------------
+   Ability registry. These are local vector sprites, so the rendering is stable
+   across iOS/Android/Desktop and never depends on platform emoji glyphs.
+   ------------------------------------------------------------------------- */
+body[data-boss-ability="swap"]{--pp-ability-art:url('./assets/abilities/deck-swap.svg')}
+body[data-boss-ability="bomb"]{--pp-ability-art:url('./assets/abilities/powder-barrel.svg')}
+body[data-boss-ability="fog"]{--pp-ability-art:url('./assets/abilities/fog.svg')}
+body[data-boss-ability="memory-curse"]{--pp-ability-art:url('./assets/abilities/memory-curse.svg')}
+body[data-boss-ability="tribute"]{--pp-ability-art:url('./assets/abilities/tribute.svg')}
+body[data-boss-ability="chains"]{--pp-ability-art:url('./assets/abilities/chains.svg')}
+body[data-boss-ability="cannon"]{--pp-ability-art:url('./assets/abilities/cannon.svg')}
+body[data-boss-ability="line-shift"]{--pp-ability-art:url('./assets/abilities/line-shift.svg')}
+body[data-boss-ability="shadow"]{--pp-ability-art:url('./assets/abilities/shadow.svg')}
+body[data-boss-ability="royal-chaos"]{--pp-ability-art:url('./assets/abilities/royal-chaos.svg')}
+
+/* One canonical marker geometry. This explicitly neutralizes the historical
+   left/top + inset + translate conflict that pushed markers out of the card. */
+.card .boss-marker{
+  position:absolute!important;
+  z-index:12!important;
+  left:50%!important;
+  top:50%!important;
+  right:auto!important;
+  bottom:auto!important;
+  inset:auto!important;
+  width:min(62%,56px)!important;
+  height:min(62%,64px)!important;
+  translate:-50% -50%!important;
+  transform:none!important;
+  border:0!important;
+  border-radius:0!important;
+  background-color:transparent!important;
+  background-repeat:no-repeat!important;
+  background-position:center!important;
+  background-size:contain!important;
+  box-shadow:none!important;
+  pointer-events:none!important;
+  filter:drop-shadow(0 5px 6px rgba(0,10,18,.58))!important;
+}
+
+.card.boss-swap-a .boss-marker,.card.boss-swap-b .boss-marker{background-image:url('./assets/abilities/deck-swap.svg')!important}
+.card.bomb-targeting .boss-marker,.card.bomb-armed .boss-marker{background-image:url('./assets/abilities/powder-barrel.svg')!important}
+.card.fogged .boss-marker{background-image:url('./assets/abilities/fog.svg')!important;width:min(72%,64px)!important;height:min(72%,68px)!important}
+.card.cursed-memory .boss-marker{background-image:url('./assets/abilities/memory-curse.svg')!important}
+.card.chained .boss-marker{background-image:url('./assets/abilities/chains.svg')!important;width:min(72%,64px)!important;height:min(72%,68px)!important}
+.card.cannon-target .boss-marker{background-image:url('./assets/abilities/cannon.svg')!important}
+.card.corvin-shifting .boss-marker{background-image:url('./assets/abilities/line-shift.svg')!important}
+.card.shadowed .boss-marker{background-image:url('./assets/abilities/shadow.svg')!important;width:min(70%,62px)!important;height:min(70%,66px)!important}
+
+/* Remove the old CSS-drawn pseudo-icons. The new local sprite is the sole
+   visual owner; state/animation classes still belong to the gameplay core. */
+.card.bomb-targeting .boss-marker::before,.card.bomb-targeting .boss-marker::after,
+.card.bomb-armed .boss-marker::before,.card.bomb-armed .boss-marker::after,
+.card.fogged .boss-marker::before,.card.fogged .boss-marker::after,
+.card.cursed-memory .boss-marker::before,.card.cursed-memory .boss-marker::after,
+.card.chained .boss-marker::before,.card.chained .boss-marker::after,
+.card.cannon-target .boss-marker::before,.card.cannon-target .boss-marker::after,
+.card.shadowed .boss-marker::before,.card.shadowed .boss-marker::after{
+  display:none!important;
+}
+
+.card.bomb-targeting .boss-marker,.card.bomb-armed .boss-marker,
+.card.fogged .boss-marker,.card.cursed-memory .boss-marker,.card.chained .boss-marker,
+.card.cannon-target .boss-marker,.card.shadowed .boss-marker{
+  animation:ppAbilitySpriteIn .28s cubic-bezier(.18,.82,.24,1) both!important;
+}
+
+/* Ability announcements use the same sprite family, making abilities readable
+   even when a mechanic does not attach to a single card (e.g. Tribute). */
+.boss-ability-banner{
+  min-height:54px!important;
+  box-sizing:border-box!important;
+  padding-left:58px!important;
+  text-align:left!important;
+}
+.boss-ability-banner::before{
+  content:"";
+  position:absolute;
+  left:10px;
+  top:50%;
+  width:38px;
+  height:38px;
+  transform:translateY(-50%);
+  background-image:var(--pp-ability-art);
+  background-repeat:no-repeat;
+  background-position:center;
+  background-size:contain;
+  filter:drop-shadow(0 4px 5px rgba(0,10,18,.58));
+}
+
+#intro .boss-power{
+  position:relative!important;
+  min-height:58px!important;
+  box-sizing:border-box!important;
+  padding-left:62px!important;
+}
+#intro .boss-power::before{
+  content:"";
+  position:absolute;
+  left:10px;
+  top:50%;
+  width:42px;
+  height:42px;
+  transform:translateY(-50%);
+  background-image:var(--pp-ability-art);
+  background-repeat:no-repeat;
+  background-position:center;
+  background-size:contain;
+  filter:drop-shadow(0 4px 5px rgba(0,10,18,.55));
+}
+
+@keyframes ppAbilitySpriteIn{
+  from{opacity:0;scale:.78;filter:drop-shadow(0 2px 3px rgba(0,10,18,.35)) brightness(1.25)}
+  to{opacity:1;scale:1;filter:drop-shadow(0 5px 6px rgba(0,10,18,.58))}
+}
+
+@media(max-width:719px){
+  .card .boss-marker{width:min(66%,50px)!important;height:min(66%,56px)!important}
+  .boss-ability-banner{min-height:48px!important;padding-left:50px!important}
+  .boss-ability-banner::before{left:8px;width:33px;height:33px}
+  #intro .boss-power{padding-left:54px!important}
+  #intro .boss-power::before{left:8px;width:36px;height:36px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .card .boss-marker{animation:none!important}
+}
